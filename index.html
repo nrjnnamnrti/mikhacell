@@ -8,7 +8,7 @@
     <!-- PWA Setup: Pastikan file manifest.json dan sw.js berada di folder yang sama -->
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#1A4D2E">
-    <link rel="apple-touch-icon" href="./icon-192px.png">
+    <link class="rounded-xl" rel="apple-touch-icon" href="./icon-192px.png">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -65,6 +65,18 @@
         <section id="view-dashboard" class="space-y-4 block">
             <h2 class="text-lg font-bold text-dark-green mb-2">Ringkasan Keuangan</h2>
             
+            <!-- Dashboard Filter -->
+            <div class="flex gap-2 mb-2">
+                <div class="flex-1 bg-white p-2.5 rounded-xl shadow-soft border border-gray-100">
+                    <label class="text-[10px] text-gray-500 block mb-1 font-medium">Dari Tanggal</label>
+                    <input type="date" id="dash-filter-start" class="w-full bg-transparent text-sm text-gray-700 outline-none" onchange="updateDateFilter(this.value, 'start')">
+                </div>
+                <div class="flex-1 bg-white p-2.5 rounded-xl shadow-soft border border-gray-100">
+                    <label class="text-[10px] text-gray-500 block mb-1 font-medium">Sampai Tanggal</label>
+                    <input type="date" id="dash-filter-end" class="w-full bg-transparent text-sm text-gray-700 outline-none" onchange="updateDateFilter(this.value, 'end')">
+                </div>
+            </div>
+
             <div class="bg-white p-5 rounded-2xl shadow-soft border border-gray-100">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="bg-green-100 p-2 rounded-xl">
@@ -133,6 +145,12 @@
                 </button>
             </div>
 
+            <!-- Search & Filter Barang Logistik -->
+            <div class="relative mb-2">
+                <i data-lucide="search" class="absolute left-3 top-3 text-gray-400 w-5 h-5"></i>
+                <input type="text" id="search-logistik" placeholder="Cari barang..." class="w-full bg-white p-3 pl-10 rounded-2xl shadow-soft border border-gray-100 focus:ring-2 focus:ring-dark-green outline-none">
+            </div>
+
             <!-- Form Tambah Barang -->
             <div id="form-logistik" class="bg-white p-5 rounded-2xl shadow-soft hidden border border-gray-100">
                 <h3 class="text-md font-bold mb-3 border-b pb-2">Tambah Barang Baru</h3>
@@ -154,28 +172,62 @@
         <!-- ================= RIWAYAT VIEW ================= -->
         <section id="view-riwayat" class="hidden space-y-4">
             <h2 class="text-lg font-bold text-dark-green mb-2">Riwayat Transaksi</h2>
+            
+            <!-- Riwayat Filter -->
+            <div class="flex gap-2 mb-2">
+                <div class="flex-1 bg-white p-2.5 rounded-xl shadow-soft border border-gray-100">
+                    <label class="text-[10px] text-gray-500 block mb-1 font-medium">Dari Tanggal</label>
+                    <input type="date" id="riw-filter-start" class="w-full bg-transparent text-sm text-gray-700 outline-none" onchange="updateDateFilter(this.value, 'start')">
+                </div>
+                <div class="flex-1 bg-white p-2.5 rounded-xl shadow-soft border border-gray-100">
+                    <label class="text-[10px] text-gray-500 block mb-1 font-medium">Sampai Tanggal</label>
+                    <input type="date" id="riw-filter-end" class="w-full bg-transparent text-sm text-gray-700 outline-none" onchange="updateDateFilter(this.value, 'end')">
+                </div>
+            </div>
+
             <div id="riwayat-container" class="space-y-3">
                 <!-- History injected here by JS -->
             </div>
         </section>
 
-        <!-- ================= PROFIL VIEW ================= -->
+        <!-- ================= SETTING VIEW (STOK OPNAME) ================= -->
         <section id="view-profil" class="hidden space-y-4">
-            <h2 class="text-lg font-bold text-dark-green mb-2">Pengaturan Usaha</h2>
-            <div class="bg-white p-5 rounded-2xl shadow-soft text-center border border-gray-100">
-                <div class="w-20 h-20 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-3">
-                    <i data-lucide="store" class="text-dark-green w-10 h-10"></i>
+            <h2 class="text-lg font-bold text-dark-green mb-2">Setting & Stok Opname</h2>
+            
+            <!-- Alat Stok Opname -->
+            <div class="bg-white p-5 rounded-2xl shadow-soft border border-gray-100 space-y-4">
+                <div class="flex items-center gap-2 border-b pb-2">
+                    <i data-lucide="package-search" class="text-dark-green w-5 h-5"></i>
+                    <h3 class="font-bold text-sm text-gray-800">Alat Penyesuaian Stok</h3>
                 </div>
-                <h3 class="font-bold text-lg">Mikha Cell</h3>
-                <p class="text-sm text-gray-500">Aplikasi Konter HP & Logistik</p>
-                <div class="mt-5 space-y-2">
-                    <button class="w-full bg-cream text-dark-green font-medium p-3 rounded-xl border border-gray-200 flex items-center gap-3">
-                        <i data-lucide="download" class="w-5 h-5"></i> Ekspor Data Laporan
-                    </button>
-                    <button class="w-full bg-cream text-dark-green font-medium p-3 rounded-xl border border-gray-200 flex items-center gap-3">
-                        <i data-lucide="info" class="w-5 h-5"></i> Tentang Aplikasi
-                    </button>
+                <p class="text-xs text-gray-500 leading-relaxed">
+                    Gunakan fitur ini untuk mencocokkan jumlah stok fisik di konter Anda dengan stok sistem. Selisih penyesuaian akan dicatat otomatis ke riwayat laporan.
+                </p>
+                
+                <!-- Pencarian Stok Opname -->
+                <div class="relative">
+                    <i data-lucide="search" class="absolute left-3 top-2.5 text-gray-400 w-4 h-4"></i>
+                    <input type="text" id="search-opname" placeholder="Cari barang untuk opname..." class="w-full bg-cream p-2 pl-9 rounded-xl border border-gray-200 text-xs focus:ring-1 focus:ring-dark-green outline-none" oninput="renderStokOpname()">
                 </div>
+                
+                <!-- List Barang Opname -->
+                <div id="opname-items-container" class="space-y-3 max-h-[48vh] overflow-y-auto pr-1">
+                    <!-- Items Opname diisi oleh JS -->
+                </div>
+            </div>
+
+            <!-- Opsi Tambahan -->
+            <div class="bg-white p-5 rounded-2xl shadow-soft border border-gray-100 space-y-3">
+                <div class="flex items-center gap-2 border-b pb-2 mb-2">
+                    <i data-lucide="sliders" class="text-dark-green w-5 h-5"></i>
+                    <h3 class="font-bold text-sm text-gray-800">Opsi Lanjutan</h3>
+                </div>
+                <button onclick="eksporData()" class="w-full bg-cream text-dark-green font-medium p-3 rounded-xl border border-gray-200 flex items-center gap-3 hover:bg-gray-100 transition text-sm">
+                    <i data-lucide="download" class="w-5 h-5"></i> Ekspor Data Laporan (JSON)
+                </button>
+                <button onclick="tentangApp()" class="w-full bg-cream text-dark-green font-medium p-3 rounded-xl border border-gray-200 flex items-center gap-3 hover:bg-gray-100 transition text-sm">
+                    <i data-lucide="info" class="w-5 h-5"></i> Tentang Aplikasi
+                </button>
             </div>
         </section>
 
@@ -196,6 +248,25 @@
                     <button onclick="closeModal()" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-dark-green text-base font-medium text-white hover:bg-light-green sm:text-sm">
                         Tutup
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi Custom (Pengganti confirm browser) -->
+    <div id="modal-confirm" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden opacity-0 transition-opacity">
+        <div class="bg-white p-6 rounded-2xl shadow-soft w-11/12 max-w-sm transform scale-95 transition-transform" id="modal-confirm-content">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i data-lucide="alert-triangle" class="h-6 w-6 text-red-600"></i>
+                </div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900" id="confirm-title">Konfirmasi</h3>
+                <div class="mt-2">
+                    <p class="text-sm text-gray-500" id="confirm-text">Apakah Anda yakin?</p>
+                </div>
+                <div class="mt-5 flex gap-3">
+                    <button onclick="closeConfirmModal()" class="w-1/2 rounded-xl border border-gray-200 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 transition font-medium text-sm">Batal</button>
+                    <button id="btn-confirm-yes" class="w-1/2 bg-red-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-red-700 transition text-sm">Hapus</button>
                 </div>
             </div>
         </div>
@@ -259,8 +330,8 @@
                     </div>
                 </div>
                 <div>
-                    <label class="text-xs text-gray-500 mb-1 block">Stok Saat Ini</label>
-                    <input type="number" id="edit-stok" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green">
+                    <label class="text-xs text-gray-500 mb-1 block">Stok Saat Ini <span class="text-[10px] text-red-400">(Hanya dari transaksi)</span></label>
+                    <input type="number" id="edit-stok" class="w-full bg-gray-100 text-gray-500 p-2 rounded-xl border border-gray-200 cursor-not-allowed outline-none" readonly disabled>
                 </div>
                 <div class="mt-5 flex gap-3">
                     <button onclick="closeEditModal()" class="w-1/2 rounded-xl border border-gray-200 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm font-medium">Batal</button>
@@ -298,6 +369,57 @@
         </div>
     </div>
 
+    <!-- Modal Pratinjau Kasir -->
+    <div id="modal-checkout-preview" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden opacity-0 transition-opacity">
+        <div class="bg-white p-6 rounded-2xl shadow-soft w-11/12 max-w-sm max-h-[90vh] overflow-y-auto transform scale-95 transition-transform" id="modal-checkout-content">
+            <h3 class="text-lg font-bold text-dark-green mb-4 border-b pb-2">Konfirmasi Pembayaran</h3>
+            
+            <div class="space-y-3 mb-3">
+                <div>
+                    <label class="text-xs text-gray-500 mb-1 block">Nama Pelanggan (Opsional)</label>
+                    <input type="text" id="checkout-customer" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green" placeholder="Misal: Budi">
+                </div>
+            </div>
+
+            <div id="checkout-items-list" class="space-y-3 mb-3 max-h-32 overflow-y-auto pr-1 border-b pb-2">
+                <!-- Items diisi oleh JS -->
+            </div>
+
+            <div class="space-y-2 mb-4">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-600">Subtotal:</span>
+                    <span class="font-bold text-gray-800" id="checkout-subtotal">Rp 0</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-600 mt-1">Diskon / Potongan (Rp):</span>
+                    <input type="number" id="checkout-discount" class="w-1/2 bg-cream p-1.5 rounded-lg border border-gray-200 focus:outline-none focus:border-dark-green text-right text-sm" placeholder="0" oninput="calculateChange()">
+                </div>
+                <div class="flex justify-between items-center border-t pt-2 mt-2">
+                    <span class="text-sm font-bold text-gray-700">Total Tagihan:</span>
+                    <span class="text-xl font-bold text-dark-green" id="checkout-total-price">Rp 0</span>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mb-5 space-y-3">
+                <div>
+                    <label class="text-xs text-gray-500 mb-1 block">Uang Dibayarkan (Rp)</label>
+                    <input type="number" id="checkout-cash" class="w-full bg-white p-2 rounded-xl border border-gray-300 focus:outline-none focus:border-dark-green text-lg font-bold text-dark-green" placeholder="0" oninput="calculateChange()">
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-600">Kembalian:</span>
+                    <span class="text-lg font-bold text-gray-800" id="checkout-change">Rp 0</span>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeCheckoutPreview()" class="w-1/2 rounded-xl border border-gray-200 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm font-medium">Batal</button>
+                <button id="btn-process-checkout" onclick="processCheckout()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm flex justify-center items-center gap-1 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> Proses
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Bottom Navigation (5 Menus) -->
     <nav class="fixed bottom-0 w-full bg-white shadow-soft-up rounded-t-2xl px-2 py-3 z-40 flex justify-around items-center border-t border-gray-100">
         <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-1 text-dark-green w-16 transition-colors">
@@ -317,15 +439,14 @@
             <span class="text-[10px] font-medium">Riwayat</span>
         </button>
         <button onclick="switchView('profil')" id="nav-profil" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-dark-green w-16 transition-colors">
-            <i data-lucide="store" class="w-6 h-6"></i>
-            <span class="text-[10px] font-medium">Profil</span>
+            <i data-lucide="settings" class="w-6 h-6"></i>
+            <span class="text-[10px] font-medium">Setting</span>
         </button>
     </nav>
 
     <!-- Application Logic -->
     <script>
         // --- In-Memory State ---
-        // Digunakan penyimpanan memori sementara. (Jika butuh penyimpanan permanen awet, bisa di-upgrade ke cloud database)
         let state = {
             inventory: [
                 { id: 1, name: "Voucher Telkomsel 20GB", cost: 50000, price: 55000, stock: 15 },
@@ -338,19 +459,48 @@
         };
 
         // --- Utilities ---
+        const getWitaDateString = (date = new Date()) => {
+            return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Makassar' }); 
+        };
+
         const formatRupiah = (number) => {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
         };
 
         const formatDate = (date) => {
-            return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+            return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Makassar' }).format(date);
         };
 
         const generateId = () => Math.random().toString(36).substr(2, 9);
 
+        // --- Filter State ---
+        let filterStartDate = getWitaDateString();
+        let filterEndDate = getWitaDateString();
+
+        function updateDateFilter(value, type) {
+            if(!value) return; 
+            if (type === 'start') {
+                filterStartDate = value;
+                document.getElementById('dash-filter-start').value = value;
+                document.getElementById('riw-filter-start').value = value;
+            } else {
+                filterEndDate = value;
+                document.getElementById('dash-filter-end').value = value;
+                document.getElementById('riw-filter-end').value = value;
+            }
+            updateAllViews();
+        }
+
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('header-date').textContent = formatDate(new Date());
+            
+            // Set input filter default ke hari ini (WITA)
+            document.getElementById('dash-filter-start').value = filterStartDate;
+            document.getElementById('dash-filter-end').value = filterEndDate;
+            document.getElementById('riw-filter-start').value = filterStartDate;
+            document.getElementById('riw-filter-end').value = filterEndDate;
+
             lucide.createIcons();
             
             // PWA Service Worker Registration
@@ -368,26 +518,21 @@
 
         // --- Navigation Logic ---
         function switchView(viewName) {
-            // Hide all views
             const views = ['dashboard', 'kasir', 'logistik', 'riwayat', 'profil'];
             views.forEach(v => {
                 document.getElementById(`view-${v}`).classList.add('hidden');
                 
-                // Update nav icon styles
                 const navBtn = document.getElementById(`nav-${v}`);
                 navBtn.classList.remove('text-dark-green');
                 navBtn.classList.add('text-gray-400');
             });
 
-            // Show selected view
             document.getElementById(`view-${viewName}`).classList.remove('hidden');
             
-            // Highlight selected nav
             const activeNav = document.getElementById(`nav-${viewName}`);
             activeNav.classList.remove('text-gray-400');
             activeNav.classList.add('text-dark-green');
 
-            // Refresh data specific to view
             updateAllViews();
         }
 
@@ -396,6 +541,7 @@
             renderLogistik();
             renderKasir();
             renderRiwayat();
+            renderStokOpname();
             lucide.createIcons();
         }
 
@@ -406,13 +552,16 @@
             let totalTerjual = 0;
             let nilaiAset = 0;
 
-            // Hitung Aset
             state.inventory.forEach(item => {
                 nilaiAset += (item.cost * item.stock);
             });
 
-            // Hitung Riwayat (Penjualan)
-            state.history.forEach(trx => {
+            const filteredHistory = state.history.filter(trx => {
+                const trxDate = getWitaDateString(trx.date);
+                return trxDate >= filterStartDate && trxDate <= filterEndDate;
+            });
+
+            filteredHistory.forEach(trx => {
                 if(trx.type === 'SALE') {
                     totalOmset += trx.total;
                     totalLaba += trx.profit;
@@ -423,20 +572,24 @@
             document.getElementById('dash-omset').textContent = formatRupiah(totalOmset);
             document.getElementById('dash-laba').textContent = formatRupiah(totalLaba);
             document.getElementById('dash-aset').textContent = formatRupiah(nilaiAset);
-            document.getElementById('dash-sold').innerHTML = `${totalTerjual} <span class="text-sm font-normal text-green-200">item</span>`;
+            document.getElementById('dash-sold').innerHTML = `${totalTerjual} <span class="text-sm font-normal">item</span>`;
         }
 
         // --- Render Logistik ---
         function renderLogistik() {
             const container = document.getElementById('logistik-items-container');
+            const searchInput = document.getElementById('search-logistik');
+            const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
             container.innerHTML = '';
 
-            if(state.inventory.length === 0) {
-                container.innerHTML = `<p class="text-center text-sm text-gray-400 mt-5">Belum ada data barang.</p>`;
+            const filteredItems = state.inventory.filter(item => item.name.toLowerCase().includes(searchQuery));
+
+            if(filteredItems.length === 0) {
+                container.innerHTML = `<p class="text-center text-sm text-gray-400 mt-5">Data barang tidak ditemukan.</p>`;
                 return;
             }
 
-            state.inventory.forEach(item => {
+            filteredItems.forEach(item => {
                 const isLowStock = item.stock < 5;
                 const html = `
                     <div onclick="showProductDetail('${item.id}')" class="bg-white p-4 rounded-2xl shadow-soft flex justify-between items-center border cursor-pointer hover:bg-gray-50 transition ${isLowStock ? 'border-red-200' : 'border-gray-100'}">
@@ -469,7 +622,6 @@
 
             const newId = generateId();
 
-            // Tambah barang baru (hanya nama, harga & stok diset 0, menunggu pembelian stok)
             state.inventory.push({
                 id: newId,
                 name: nama,
@@ -478,7 +630,6 @@
                 stock: 0
             });
 
-            // Bersihkan form
             document.getElementById('input-nama').value = '';
             
             toggleFormLogistik();
@@ -535,6 +686,7 @@
         }
 
         document.getElementById('search-kasir').addEventListener('input', renderKasir);
+        document.getElementById('search-logistik').addEventListener('input', renderLogistik);
 
         function updateCart(itemId, change) {
             const itemIndex = state.inventory.findIndex(i => i.id == itemId);
@@ -583,24 +735,115 @@
             floatingCart.classList.remove('hidden');
         }
 
+        let currentCheckoutSubtotal = 0;
+
         function checkout() {
             if(state.cart.length === 0) return;
 
-            let totalSales = 0;
-            let totalProfit = 0;
+            document.getElementById('checkout-customer').value = '';
+            document.getElementById('checkout-discount').value = '';
+            document.getElementById('checkout-cash').value = '';
+            document.getElementById('btn-process-checkout').disabled = true;
+
+            const listContainer = document.getElementById('checkout-items-list');
+            listContainer.innerHTML = '';
+            currentCheckoutSubtotal = 0;
+
+            state.cart.forEach(item => {
+                const subtotal = item.price * item.qty;
+                currentCheckoutSubtotal += subtotal;
+                listContainer.insertAdjacentHTML('beforeend', `
+                    <div class="flex justify-between items-center text-sm bg-cream p-2 rounded-lg border border-gray-100">
+                        <div class="flex-1">
+                            <p class="font-bold text-gray-800">${item.name}</p>
+                            <p class="text-[10px] text-gray-500">${item.qty} x ${formatRupiah(item.price)}</p>
+                        </div>
+                        <p class="font-bold text-dark-green">${formatRupiah(subtotal)}</p>
+                    </div>
+                `);
+            });
+
+            calculateChange();
+
+            const modal = document.getElementById('modal-checkout-preview');
+            const modalContent = document.getElementById('modal-checkout-content');
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function calculateChange() {
+            const discountVal = parseInt(document.getElementById('checkout-discount').value) || 0;
+            const cashVal = parseInt(document.getElementById('checkout-cash').value) || 0;
+            
+            let finalTotal = currentCheckoutSubtotal - discountVal;
+            if (finalTotal < 0) finalTotal = 0;
+
+            const changeVal = cashVal - finalTotal;
+
+            document.getElementById('checkout-subtotal').textContent = formatRupiah(currentCheckoutSubtotal);
+            document.getElementById('checkout-total-price').textContent = formatRupiah(finalTotal);
+            
+            const changeElement = document.getElementById('checkout-change');
+            const btnProcess = document.getElementById('btn-process-checkout');
+
+            if (cashVal >= finalTotal && finalTotal > 0) {
+                changeElement.textContent = formatRupiah(changeVal);
+                changeElement.classList.remove('text-red-500');
+                changeElement.classList.add('text-gray-800');
+                btnProcess.disabled = false;
+            } else {
+                changeElement.textContent = cashVal === 0 ? "Rp 0" : "Uang Kurang!";
+                changeElement.classList.remove('text-gray-800');
+                changeElement.classList.add('text-red-500');
+                btnProcess.disabled = true;
+            }
+        }
+
+        function closeCheckoutPreview() {
+            const modal = document.getElementById('modal-checkout-preview');
+            const modalContent = document.getElementById('modal-checkout-content');
+            
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function processCheckout() {
+            if(state.cart.length === 0) return;
+
+            const customerName = document.getElementById('checkout-customer').value || 'Pelanggan Umum';
+            const discount = parseInt(document.getElementById('checkout-discount').value) || 0;
+            const cashGiven = parseInt(document.getElementById('checkout-cash').value) || 0;
+
+            let finalTotal = currentCheckoutSubtotal - discount;
+            if(finalTotal < 0) finalTotal = 0;
+
+            if (cashGiven < finalTotal) {
+                showModal("Gagal", "Jumlah uang tidak mencukupi tagihan.", false);
+                return;
+            }
+
+            closeCheckoutPreview();
+
+            let totalSales = finalTotal;
+            let totalCost = 0;
             let soldItems = [];
 
-            // Proses potongan stok & kalkulasi
             state.cart.forEach(cartItem => {
                 const invItem = state.inventory.find(i => i.id == cartItem.id);
                 if(invItem) {
                     invItem.stock -= cartItem.qty;
-                    const subtotal = cartItem.price * cartItem.qty;
-                    const costTotal = cartItem.cost * cartItem.qty;
-                    const profit = subtotal - costTotal;
-
-                    totalSales += subtotal;
-                    totalProfit += profit;
+                    totalCost += (cartItem.cost * cartItem.qty);
                     
                     soldItems.push({
                         id: cartItem.id,
@@ -611,20 +854,28 @@
                 }
             });
 
-            // Catat Riwayat
+            const totalProfit = totalSales - totalCost;
+
             state.history.unshift({
                 id: generateId(),
                 date: new Date(),
                 type: 'SALE',
+                customer: customerName,
                 items: soldItems,
+                discount: discount,
                 total: totalSales,
-                profit: totalProfit
+                profit: totalProfit,
+                cash: cashGiven,
+                change: cashGiven - finalTotal
             });
 
-            // Bersihkan Keranjang
             state.cart = [];
-            updateAllViews();
-            showModal("Transaksi Berhasil!", `Total pembayaran ${formatRupiah(totalSales)} telah diterima.`, true);
+            currentCheckoutSubtotal = 0;
+            
+            setTimeout(() => {
+                updateAllViews();
+                showModal("Transaksi Berhasil!", `Kembalian pelanggan: ${formatRupiah(cashGiven - finalTotal)}`, true);
+            }, 300);
         }
 
         // --- Render Riwayat ---
@@ -632,30 +883,63 @@
             const container = document.getElementById('riwayat-container');
             container.innerHTML = '';
 
-            if(state.history.length === 0) {
-                container.innerHTML = `<p class="text-center text-sm text-gray-400 mt-5">Belum ada transaksi.</p>`;
+            const filteredHistory = state.history.filter(trx => {
+                const trxDate = getWitaDateString(trx.date);
+                return trxDate >= filterStartDate && trxDate <= filterEndDate;
+            });
+
+            if(filteredHistory.length === 0) {
+                container.innerHTML = `<p class="text-center text-sm text-gray-400 mt-5">Belum ada transaksi pada rentang tanggal ini.</p>`;
                 return;
             }
 
-            state.history.forEach(trx => {
+            filteredHistory.forEach(trx => {
                 const isSale = trx.type === 'SALE';
-                const time = trx.date.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
-                const dateStr = trx.date.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric'});
+                const isAdjustment = trx.type === 'ADJUSTMENT';
+                const time = trx.date.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Makassar'});
+                const dateStr = trx.date.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric', timeZone: 'Asia/Makassar'});
                 
-                let itemsListHtml = trx.items.map(i => `<li class="text-xs text-gray-500">• ${i.name} (x${i.qty})</li>`).join('');
+                let itemsListHtml = '';
+                if(isAdjustment) {
+                    itemsListHtml = trx.items.map(i => `<li class="text-xs text-gray-500">• ${i.name} (Stok: ${i.prevStock} → ${i.newStock} | Alasan: ${i.reason})</li>`).join('');
+                } else {
+                    itemsListHtml = trx.items.map(i => `<li class="text-xs text-gray-500">• ${i.name} (x${i.qty})</li>`).join('');
+                }
+
+                let badgeColor = 'bg-orange-500';
+                let badgeIcon = 'arrow-down-left';
+                let badgeText = 'Restok Barang';
+                let amountText = `-${formatRupiah(trx.total)}`;
+                let amountColor = 'text-gray-800';
+
+                if (isSale) {
+                    badgeColor = 'bg-dark-green';
+                    badgeIcon = 'arrow-up-right';
+                    badgeText = 'Penjualan';
+                    amountText = `+${formatRupiah(trx.total)}`;
+                    amountColor = 'text-dark-green';
+                } else if (isAdjustment) {
+                    badgeColor = 'bg-blue-500';
+                    badgeIcon = 'sliders';
+                    badgeText = 'Stok Opname';
+                    const selisih = trx.items[0].qty;
+                    amountText = `${selisih > 0 ? '+' : ''}${selisih} Unit`;
+                    amountColor = selisih > 0 ? 'text-blue-600' : 'text-red-500';
+                }
 
                 const html = `
                     <div class="bg-white p-4 rounded-2xl shadow-soft border border-gray-100 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-1 h-full ${isSale ? 'bg-dark-green' : 'bg-orange-500'}"></div>
+                        <div class="absolute top-0 left-0 w-1 h-full ${badgeColor}"></div>
                         <div class="flex justify-between items-start mb-2">
                             <div>
                                 <span class="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-500 font-medium">${time} - ${dateStr}</span>
                                 <h3 class="font-bold text-sm mt-1 flex items-center gap-1">
-                                    ${isSale ? '<i data-lucide="arrow-up-right" class="w-4 h-4 text-dark-green"></i> Penjualan' : '<i data-lucide="arrow-down-left" class="w-4 h-4 text-orange-500"></i> Restok Barang'}
+                                    <i data-lucide="${badgeIcon}" class="w-4 h-4 ${isSale ? 'text-dark-green' : (isAdjustment ? 'text-blue-500' : 'text-orange-500')}"></i> ${badgeText}
                                 </h3>
+                                ${isSale && trx.customer ? `<p class="text-[10px] text-gray-500 mt-1"><i data-lucide="user" class="w-3 h-3 inline"></i> ${trx.customer}</p>` : ''}
                             </div>
                             <div class="text-right">
-                                <p class="font-bold ${isSale ? 'text-dark-green' : 'text-gray-800'} text-sm">${isSale ? '+' : '-'}${formatRupiah(trx.total)}</p>
+                                <p class="font-bold ${amountColor} text-sm">${amountText}</p>
                                 ${isSale ? `<p class="text-[10px] text-blue-500 font-medium">Laba: ${formatRupiah(trx.profit)}</p>` : ''}
                             </div>
                         </div>
@@ -663,6 +947,7 @@
                             <ul class="space-y-1">
                                 ${itemsListHtml}
                             </ul>
+                            ${isSale && trx.discount > 0 ? `<p class="text-[10px] text-orange-500 mt-1.5 pt-1.5 border-t border-gray-200 font-medium">Diskon Diberikan: ${formatRupiah(trx.discount)}</p>` : ''}
                         </div>
                     </div>
                 `;
@@ -671,7 +956,7 @@
             lucide.createIcons();
         }
 
-        // --- Custom Modal ---
+        // --- Custom Dialog Message ---
         function showModal(title, text, isSuccess) {
             const modal = document.getElementById('modal-message');
             const modalContent = document.getElementById('modal-content');
@@ -691,7 +976,6 @@
             modal.classList.remove('hidden');
             lucide.createIcons();
 
-            // Animate in
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
                 modalContent.classList.remove('scale-95');
@@ -709,7 +993,42 @@
 
             setTimeout(() => {
                 modal.classList.add('hidden');
-            }, 300); // match transition duration
+            }, 300);
+        }
+
+        // --- Custom Confirmation Dialog ---
+        function showConfirmModal(title, text, yesCallback) {
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-text').textContent = text;
+            
+            const btnYes = document.getElementById('btn-confirm-yes');
+            btnYes.onclick = () => {
+                yesCallback();
+                closeConfirmModal();
+            };
+
+            const modal = document.getElementById('modal-confirm');
+            const modalContent = document.getElementById('modal-confirm-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('modal-confirm');
+            const modalContent = document.getElementById('modal-confirm-content');
+            
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
         }
 
         // --- Fitur Detail, Edit & Hapus Produk ---
@@ -721,7 +1040,6 @@
 
             currentDetailId = id;
             
-            // Render Info Modal
             const infoContainer = document.getElementById('detail-info');
             infoContainer.innerHTML = `
                 <div class="bg-green-50 p-4 rounded-xl border border-green-100 mb-2">
@@ -740,11 +1058,9 @@
                 </div>
             `;
 
-            // Render History for this specific item
             const historyContainer = document.getElementById('detail-history');
             historyContainer.innerHTML = '';
             
-            // Filter history khusus untuk barang ini (memeriksa id atau nama sebagai cadangan)
             const itemHistory = state.history.filter(trx => trx.items.some(i => i.id == id || i.name === item.name));
 
             if(itemHistory.length === 0) {
@@ -752,23 +1068,38 @@
             } else {
                 itemHistory.forEach(trx => {
                     const isSale = trx.type === 'SALE';
+                    const isAdjustment = trx.type === 'ADJUSTMENT';
                     const historyItem = trx.items.find(i => i.id == id || i.name === item.name);
-                    const dateStr = trx.date.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric'});
-                    const timeStr = trx.date.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+                    const dateStr = trx.date.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric', timeZone: 'Asia/Makassar'});
+                    const timeStr = trx.date.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Makassar'});
                     
+                    let actText = isSale ? 'Terjual (Kasir)' : 'Restok Masuk';
+                    let colStyle = isSale ? 'text-dark-green' : 'text-orange-500';
+                    let qtyPrefix = isSale ? '-' : '+';
+                    let iconVal = isSale ? 'arrow-up-right' : 'arrow-down-left';
+                    let iconBg = isSale ? 'bg-green-100' : 'bg-orange-100';
+
+                    if(isAdjustment) {
+                        actText = 'Stok Opname';
+                        colStyle = historyItem.qty > 0 ? 'text-blue-500' : 'text-red-500';
+                        qtyPrefix = historyItem.qty > 0 ? '+' : '';
+                        iconVal = 'sliders';
+                        iconBg = 'bg-blue-100';
+                    }
+
                     historyContainer.insertAdjacentHTML('beforeend', `
                         <div class="flex justify-between items-center text-sm p-3 bg-cream rounded-xl mb-2 border border-gray-100">
                             <div class="flex items-center gap-3">
-                                <div class="p-1.5 rounded-lg ${isSale ? 'bg-green-100' : 'bg-orange-100'}">
-                                    ${isSale ? '<i data-lucide="arrow-up-right" class="w-4 h-4 text-dark-green"></i>' : '<i data-lucide="arrow-down-left" class="w-4 h-4 text-orange-500"></i>'}
+                                <div class="p-1.5 rounded-lg ${iconBg}">
+                                    <i data-lucide="${iconVal}" class="w-4 h-4 ${colStyle}"></i>
                                 </div>
                                 <div>
-                                    <p class="font-bold text-gray-800">${isSale ? 'Terjual (Kasir)' : 'Restok Masuk'}</p>
+                                    <p class="font-bold text-gray-800">${actText}</p>
                                     <p class="text-[10px] text-gray-500">${dateStr} - ${timeStr}</p>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="font-bold text-lg ${isSale ? 'text-dark-green' : 'text-orange-500'}">${isSale ? '-' : '+'}${historyItem.qty}</p>
+                                <p class="font-bold text-lg ${colStyle}">${qtyPrefix}${historyItem.qty}</p>
                             </div>
                         </div>
                     `);
@@ -798,7 +1129,6 @@
 
             setTimeout(() => {
                 modal.classList.add('hidden');
-                currentDetailId = null;
             }, 300);
         }
 
@@ -815,7 +1145,6 @@
 
             closeProductDetail();
             
-            // Jeda sejenak sebelum memunculkan modal edit
             setTimeout(() => {
                 const modal = document.getElementById('modal-product-edit');
                 const modalContent = document.getElementById('modal-edit-content');
@@ -839,7 +1168,6 @@
 
             setTimeout(() => {
                 modal.classList.add('hidden');
-                // Buka kembali modal detail barang yang tadi
                 if(currentDetailId) showProductDetail(currentDetailId);
             }, 300);
         }
@@ -849,9 +1177,8 @@
             const nama = document.getElementById('edit-nama').value;
             const modalVal = parseInt(document.getElementById('edit-modal').value);
             const jual = parseInt(document.getElementById('edit-jual').value);
-            const stok = parseInt(document.getElementById('edit-stok').value);
 
-            if(!nama || isNaN(modalVal) || isNaN(jual) || isNaN(stok)) {
+            if(!nama || isNaN(modalVal) || isNaN(jual)) {
                 showModal("Gagal", "Mohon lengkapi semua form dengan benar.", false);
                 return;
             }
@@ -861,9 +1188,7 @@
                 state.inventory[index].name = nama;
                 state.inventory[index].cost = modalVal;
                 state.inventory[index].price = jual;
-                state.inventory[index].stock = stok;
                 
-                // Tutup edit modal lalu perbarui UI
                 const modal = document.getElementById('modal-product-edit');
                 modal.classList.add('opacity-0');
                 setTimeout(() => {
@@ -880,7 +1205,6 @@
             if(!item) return;
 
             document.getElementById('beli-nama-barang').textContent = item.name;
-            // Jika harga sudah ada sebelumnya, isi otomatis sebagai bawaan
             document.getElementById('beli-modal').value = item.cost > 0 ? item.cost : '';
             document.getElementById('beli-jual').value = item.price > 0 ? item.price : '';
             document.getElementById('beli-stok').value = '';
@@ -926,12 +1250,10 @@
 
             const item = state.inventory.find(i => i.id == currentDetailId);
             if(item) {
-                // Perbarui data harga & tambah stok
                 item.cost = modalVal;
                 item.price = jual;
                 item.stock += stokMasuk;
 
-                // Catat history pembelian untuk laporan
                 state.history.unshift({
                     id: generateId(),
                     date: new Date(),
@@ -954,20 +1276,130 @@
         function deleteProductFromDetail() {
             if(!currentDetailId) return;
             const item = state.inventory.find(i => i.id == currentDetailId);
+            if(!item) return;
+
+            showConfirmModal(
+                "Hapus Barang", 
+                `Yakin ingin menghapus "${item.name}"? Barang akan dihapus dari Logistik, namun riwayat transaksi lama tetap dipertahankan.`, 
+                () => {
+                    state.inventory = state.inventory.filter(i => i.id != currentDetailId);
+                    state.cart = state.cart.filter(c => c.id != currentDetailId);
+                    
+                    closeProductDetail();
+                    setTimeout(() => {
+                        updateAllViews();
+                        showModal("Terhapus", "Barang telah berhasil dihapus.", true);
+                    }, 300);
+                }
+            );
+        }
+
+        // --- Fitur Baru: Render Stok Opname ---
+        function renderStokOpname() {
+            const container = document.getElementById('opname-items-container');
+            const searchInput = document.getElementById('search-opname');
+            const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
             
-            // Konfirmasi sederhana sebelum menghapus
-            if(confirm(`Yakin ingin menghapus "${item.name}"?\nPerhatian: Barang akan dihapus dari Logistik (namun riwayat transaksi lama tetap dipertahankan).`)) {
-                state.inventory = state.inventory.filter(i => i.id != currentDetailId);
-                
-                // Jika barang ini ada di keranjang kasir, keluarkan juga
-                state.cart = state.cart.filter(c => c.id != currentDetailId);
-                
-                closeProductDetail();
-                setTimeout(() => {
-                    updateAllViews();
-                    showModal("Terhapus", "Barang telah berhasil dihapus.", true);
-                }, 300);
+            if(!container) return;
+            container.innerHTML = '';
+
+            const filteredItems = state.inventory.filter(item => item.name.toLowerCase().includes(searchQuery));
+
+            if(filteredItems.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-gray-400 py-6">Barang tidak ditemukan.</p>`;
+                return;
             }
+
+            filteredItems.forEach(item => {
+                const html = `
+                    <div class="bg-cream p-4 rounded-xl border border-gray-200 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">${item.name}</h4>
+                                <p class="text-xs text-gray-500">Stok Sistem Saat Ini: <span class="font-bold text-dark-green">${item.stock}</span></p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] text-gray-500 block mb-1 font-semibold">Stok Fisik Sebenarnya</label>
+                                <input type="number" id="opname-stok-${item.id}" value="${item.stock}" class="w-full bg-white p-2 rounded-lg border border-gray-300 focus:outline-none focus:border-dark-green text-sm font-bold h-9">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-500 block mb-1 font-semibold">Alasan Penyesuaian</label>
+                                <select id="opname-alasan-${item.id}" class="w-full bg-white px-2 rounded-lg border border-gray-300 focus:outline-none focus:border-dark-green text-xs h-9">
+                                    <option value="Koreksi Selisih">Koreksi Selisih</option>
+                                    <option value="Barang Rusak">Barang Rusak</option>
+                                    <option value="Barang Hilang">Barang Hilang</option>
+                                    <option value="Kesalahan Input">Kesalahan Input</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button onclick="prosesStokOpname('${item.id}')" class="w-full bg-dark-green text-white text-xs font-bold py-2 rounded-lg hover:bg-light-green transition flex justify-center items-center gap-1 shadow-sm">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sesuaikan Stok
+                        </button>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+            lucide.createIcons();
+        }
+
+        function prosesStokOpname(id) {
+            const item = state.inventory.find(i => i.id == id);
+            if (!item) return;
+
+            const stokFisik = parseInt(document.getElementById(`opname-stok-${id}`).value);
+            const alasan = document.getElementById(`opname-alasan-${id}`).value;
+
+            if(isNaN(stokFisik) || stokFisik < 0) {
+                showModal("Gagal", "Stok fisik baru harus berupa angka positif.", false);
+                return;
+            }
+
+            const selisih = stokFisik - item.stock;
+
+            if(selisih === 0) {
+                showModal("Tidak Ada Selisih", "Jumlah stok sistem dan fisik sudah sama. Tidak diperlukan penyesuaian.", true);
+                return;
+            }
+
+            const stokLama = item.stock;
+
+            // Perbarui Stok Sistem
+            item.stock = stokFisik;
+
+            // Catat Riwayat Transaksi Penyesuaian
+            state.history.unshift({
+                id: generateId(),
+                date: new Date(),
+                type: 'ADJUSTMENT',
+                items: [{ id: item.id, name: item.name, qty: selisih, prevStock: stokLama, newStock: stokFisik, reason: alasan }],
+                total: 0,
+                profit: 0
+            });
+
+            updateAllViews();
+            showModal("Penyesuaian Berhasil", `Stok "${item.name}" disesuaikan menjadi ${stokFisik} unit (Selisih: ${selisih > 0 ? '+' : ''}${selisih}).`, true);
+        }
+
+        // --- Ekspor & Info ---
+        function eksporData() {
+            try {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", `MikhaCell_Backup_${getWitaDateString()}.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+                showModal("Ekspor Berhasil", "Seluruh data persediaan dan riwayat toko Anda berhasil diunduh sebagai file JSON backup.", true);
+            } catch(e) {
+                showModal("Gagal Ekspor", "Terjadi kesalahan saat mengekspor data backup.", false);
+            }
+        }
+
+        function tentangApp() {
+            showModal("Mikha Cell App v1.3", "Aplikasi Kasir, Logistik & Stok Opname Konter HP Modern. Dibangun dengan sistem PWA offline-first berkecepatan tinggi.", true);
         }
 
     </script>
