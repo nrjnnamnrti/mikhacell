@@ -65,6 +65,16 @@
         <section id="view-dashboard" class="space-y-4 block">
             <h2 class="text-lg font-bold text-dark-green mb-2">Ringkasan Keuangan</h2>
             
+            <!-- Tombol Input Keuangan -->
+            <div class="flex gap-2 mb-2">
+                <button onclick="bukaModalKeuangan('INCOME')" class="flex-1 bg-green-50 border border-green-200 text-dark-green py-2 rounded-xl text-sm font-bold flex justify-center items-center gap-1 shadow-sm hover:bg-green-100 transition">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Pemasukan
+                </button>
+                <button onclick="bukaModalKeuangan('EXPENSE')" class="flex-1 bg-red-50 border border-red-200 text-red-600 py-2 rounded-xl text-sm font-bold flex justify-center items-center gap-1 shadow-sm hover:bg-red-100 transition">
+                    <i data-lucide="minus-circle" class="w-4 h-4"></i> Pengeluaran
+                </button>
+            </div>
+
             <!-- Dashboard Filter -->
             <div class="flex gap-2 mb-2">
                 <div class="flex-1 bg-white p-2.5 rounded-xl shadow-soft border border-gray-100">
@@ -77,28 +87,43 @@
                 </div>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl shadow-soft border border-gray-100">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="bg-green-100 p-2 rounded-xl">
-                        <i data-lucide="wallet" class="text-dark-green w-5 h-5"></i>
-                    </div>
-                    <p class="text-sm text-gray-500 font-medium">Total Pendapatan</p>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-800" id="dash-omset">Rp 0</h3>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-3">
                 <div class="bg-white p-4 rounded-2xl shadow-soft border border-gray-100">
                     <div class="flex items-center gap-2 mb-2">
-                        <i data-lucide="trending-up" class="text-blue-500 w-4 h-4"></i>
-                        <p class="text-xs text-gray-500 font-medium">Total Keuntungan</p>
+                        <div class="bg-green-100 p-1.5 rounded-lg">
+                            <i data-lucide="wallet" class="text-dark-green w-4 h-4"></i>
+                        </div>
+                        <p class="text-xs text-gray-500 font-medium">Omset</p>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800" id="dash-omset">Rp 0</h3>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl shadow-soft border border-gray-100">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="bg-red-100 p-1.5 rounded-lg">
+                            <i data-lucide="shopping-cart" class="text-red-600 w-4 h-4"></i>
+                        </div>
+                        <p class="text-xs text-gray-500 font-medium">Pengeluaran</p>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800" id="dash-pengeluaran">Rp 0</h3>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl shadow-soft border border-gray-100">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="bg-blue-100 p-1.5 rounded-lg">
+                            <i data-lucide="trending-up" class="text-blue-600 w-4 h-4"></i>
+                        </div>
+                        <p class="text-xs text-gray-500 font-medium">Laba Bersih</p>
                     </div>
                     <h3 class="text-lg font-bold text-gray-800" id="dash-laba">Rp 0</h3>
                 </div>
+                
                 <div class="bg-white p-4 rounded-2xl shadow-soft border border-gray-100">
                     <div class="flex items-center gap-2 mb-2">
-                        <i data-lucide="package" class="text-orange-500 w-4 h-4"></i>
-                        <p class="text-xs text-gray-500 font-medium">Nilai Aset Stok</p>
+                        <div class="bg-orange-100 p-1.5 rounded-lg">
+                            <i data-lucide="package" class="text-orange-600 w-4 h-4"></i>
+                        </div>
+                        <p class="text-xs text-gray-500 font-medium">Nilai Aset</p>
                     </div>
                     <h3 class="text-lg font-bold text-gray-800" id="dash-aset">Rp 0</h3>
                 </div>
@@ -140,9 +165,14 @@
         <section id="view-logistik" class="hidden space-y-4">
             <div class="flex justify-between items-center mb-2">
                 <h2 class="text-lg font-bold text-dark-green">Data Logistik</h2>
-                <button onclick="toggleFormLogistik()" class="bg-dark-green text-white px-3 py-1.5 rounded-xl text-sm flex items-center gap-1 shadow-soft">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Tambah
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="bukaModalPembelianGlobal()" class="bg-blue-600 text-white px-3 py-1.5 rounded-xl text-sm flex items-center gap-1 shadow-soft">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i> Restok
+                    </button>
+                    <button onclick="toggleFormLogistik()" class="bg-dark-green text-white px-3 py-1.5 rounded-xl text-sm flex items-center gap-1 shadow-soft">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Tambah
+                    </button>
+                </div>
             </div>
 
             <!-- Search & Filter Barang Logistik -->
@@ -293,18 +323,13 @@
                 </div>
             </div>
 
-            <div class="mt-6 space-y-3">
-                <button onclick="bukaModalPembelian()" class="w-full inline-flex justify-center items-center rounded-xl border border-transparent shadow-sm px-4 py-3 bg-dark-green text-base font-bold text-white hover:bg-light-green sm:text-sm transition">
-                    <i data-lucide="shopping-bag" class="w-5 h-5 mr-2"></i> Pembelian Stok (Restok)
+            <div class="mt-6 flex gap-3">
+                <button onclick="deleteProductFromDetail()" class="w-1/3 inline-flex justify-center rounded-xl border border-red-200 shadow-sm px-4 py-2 bg-red-50 text-base font-medium text-red-600 hover:bg-red-100 sm:text-sm transition">
+                    <i data-lucide="trash-2" class="w-4 h-4 mr-1 mt-0.5"></i> Hapus
                 </button>
-                <div class="flex gap-3">
-                    <button onclick="deleteProductFromDetail()" class="w-1/3 inline-flex justify-center rounded-xl border border-red-200 shadow-sm px-4 py-2 bg-red-50 text-base font-medium text-red-600 hover:bg-red-100 sm:text-sm transition">
-                        <i data-lucide="trash-2" class="w-4 h-4 mr-1 mt-0.5"></i> Hapus
-                    </button>
-                    <button onclick="editProductFromDetail()" class="w-2/3 inline-flex justify-center rounded-xl border border-gray-200 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:text-sm transition">
-                        <i data-lucide="edit" class="w-4 h-4 mr-1 mt-0.5"></i> Edit Info
-                    </button>
-                </div>
+                <button onclick="editProductFromDetail()" class="w-2/3 inline-flex justify-center rounded-xl border border-gray-200 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:text-sm transition">
+                    <i data-lucide="edit" class="w-4 h-4 mr-1 mt-0.5"></i> Edit Info
+                </button>
             </div>
         </div>
     </div>
@@ -321,8 +346,8 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="text-xs text-gray-500 mb-1 block">Harga Beli/Modal (Rp)</label>
-                        <input type="number" id="edit-modal" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green">
+                        <label class="text-xs text-gray-500 mb-1 block">Harga Beli <span class="text-[10px] text-red-400">(Hanya dari Restok)</span></label>
+                        <input type="number" id="edit-modal" class="w-full bg-gray-100 text-gray-500 p-2 rounded-xl border border-gray-200 cursor-not-allowed outline-none" readonly disabled>
                     </div>
                     <div>
                         <label class="text-xs text-gray-500 mb-1 block">Harga Jual (Rp)</label>
@@ -336,34 +361,6 @@
                 <div class="mt-5 flex gap-3">
                     <button onclick="closeEditModal()" class="w-1/2 rounded-xl border border-gray-200 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm font-medium">Batal</button>
                     <button onclick="simpanEditBarang()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm">Simpan</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Pembelian/Restok Produk -->
-    <div id="modal-pembelian" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden opacity-0 transition-opacity">
-        <div class="bg-white p-6 rounded-2xl shadow-soft w-11/12 max-w-sm transform scale-95 transition-transform" id="modal-pembelian-content">
-            <h3 class="text-lg font-bold text-dark-green mb-1">Pembelian Barang</h3>
-            <p class="text-xs text-gray-500 mb-4 font-medium" id="beli-nama-barang">Nama Barang</p>
-            <div class="space-y-3">
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs text-gray-500 mb-1 block">Harga Beli/Modal (Rp)</label>
-                        <input type="number" id="beli-modal" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 mb-1 block">Harga Jual (Rp)</label>
-                        <input type="number" id="beli-jual" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green">
-                    </div>
-                </div>
-                <div>
-                    <label class="text-xs text-gray-500 mb-1 block">Jumlah Pembelian (Stok)</label>
-                    <input type="number" id="beli-stok" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green" placeholder="Misal: 10">
-                </div>
-                <div class="mt-5 flex gap-3">
-                    <button onclick="closeModalPembelian()" class="w-1/2 rounded-xl border border-gray-200 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm font-medium">Batal</button>
-                    <button onclick="simpanPembelian()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm">Simpan</button>
                 </div>
             </div>
         </div>
@@ -416,6 +413,65 @@
                 <button id="btn-process-checkout" onclick="processCheckout()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm flex justify-center items-center gap-1 disabled:bg-gray-400 disabled:cursor-not-allowed">
                     <i data-lucide="check-circle" class="w-4 h-4"></i> Proses
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pembelian/Restok Global -->
+    <div id="modal-pembelian-global" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden opacity-0 transition-opacity">
+        <div class="bg-white p-6 rounded-2xl shadow-soft w-11/12 max-w-sm transform scale-95 transition-transform" id="modal-pembelian-global-content">
+            <h3 class="text-lg font-bold text-dark-green mb-4 border-b pb-2">Pembelian Stok Barang</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-gray-500 mb-1 block">Pilih Barang</label>
+                    <select id="beli-global-id" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green" onchange="autofillPembelianGlobal()">
+                        <option value="">-- Pilih Barang --</option>
+                        <!-- Options injected via JS -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">Total Harga Beli (Rp)</label>
+                        <input type="number" id="beli-global-total-modal" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green" oninput="calculateUnitCostGlobal()">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">Total Stok Dibeli</label>
+                        <input type="number" id="beli-global-stok" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green" placeholder="Misal: 10" oninput="calculateUnitCostGlobal()">
+                    </div>
+                </div>
+                <div class="bg-green-50 p-2.5 rounded-xl border border-green-100 flex justify-between items-center">
+                    <span class="text-xs text-gray-600 font-medium">Harga Beli Persatuan:</span>
+                    <span id="beli-global-info-satuan" class="font-bold text-dark-green text-sm">Rp 0</span>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 mb-1 block">Harga Jual Satuan (Rp)</label>
+                    <input type="number" id="beli-global-jual" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green">
+                </div>
+                <div class="mt-5 flex gap-3">
+                    <button onclick="closeModalPembelianGlobal()" class="w-1/2 rounded-xl border border-gray-200 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm font-medium">Batal</button>
+                    <button onclick="simpanPembelianGlobal()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Input Keuangan (Pemasukan/Pengeluaran) -->
+    <div id="modal-keuangan" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden opacity-0 transition-opacity">
+        <div class="bg-white p-6 rounded-2xl shadow-soft w-11/12 max-w-sm transform scale-95 transition-transform" id="modal-keuangan-content">
+            <h3 id="keuangan-title" class="text-lg font-bold text-dark-green mb-4 border-b pb-2">Input Pemasukan</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-gray-500 mb-1 block">Nominal (Rp)</label>
+                    <input type="number" id="keuangan-nominal" class="w-full bg-cream p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-dark-green text-lg font-bold">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 mb-1 block">Keterangan / Catatan</label>
+                    <input type="text" id="keuangan-catatan" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green" placeholder="Misal: Bayar Listrik, Servis HP...">
+                </div>
+                <div class="mt-5 flex gap-3">
+                    <button onclick="closeModalKeuangan()" class="w-1/2 rounded-xl border border-gray-200 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm font-medium">Batal</button>
+                    <button onclick="simpanKeuangan()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm">Simpan</button>
+                </div>
             </div>
         </div>
     </div>
@@ -549,6 +605,7 @@
         function renderDashboard() {
             let totalOmset = 0;
             let totalLaba = 0;
+            let totalPengeluaran = 0;
             let totalTerjual = 0;
             let nilaiAset = 0;
 
@@ -566,10 +623,19 @@
                     totalOmset += trx.total;
                     totalLaba += trx.profit;
                     trx.items.forEach(i => totalTerjual += i.qty);
+                } else if (trx.type === 'RESTOCK') {
+                    totalPengeluaran += trx.total;
+                } else if (trx.type === 'INCOME') {
+                    totalOmset += trx.total;
+                    totalLaba += trx.total;
+                } else if (trx.type === 'EXPENSE') {
+                    totalPengeluaran += trx.total;
+                    totalLaba -= trx.total;
                 }
             });
 
             document.getElementById('dash-omset').textContent = formatRupiah(totalOmset);
+            document.getElementById('dash-pengeluaran').textContent = formatRupiah(totalPengeluaran);
             document.getElementById('dash-laba').textContent = formatRupiah(totalLaba);
             document.getElementById('dash-aset').textContent = formatRupiah(nilaiAset);
             document.getElementById('dash-sold').innerHTML = `${totalTerjual} <span class="text-sm font-normal">item</span>`;
@@ -896,12 +962,16 @@
             filteredHistory.forEach(trx => {
                 const isSale = trx.type === 'SALE';
                 const isAdjustment = trx.type === 'ADJUSTMENT';
+                const isIncome = trx.type === 'INCOME';
+                const isExpense = trx.type === 'EXPENSE';
                 const time = trx.date.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Makassar'});
                 const dateStr = trx.date.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric', timeZone: 'Asia/Makassar'});
                 
                 let itemsListHtml = '';
                 if(isAdjustment) {
                     itemsListHtml = trx.items.map(i => `<li class="text-xs text-gray-500">• ${i.name} (Stok: ${i.prevStock} → ${i.newStock} | Alasan: ${i.reason})</li>`).join('');
+                } else if (isIncome || isExpense) {
+                    itemsListHtml = `<li class="text-xs text-gray-500">• Catatan: ${trx.note}</li>`;
                 } else {
                     itemsListHtml = trx.items.map(i => `<li class="text-xs text-gray-500">• ${i.name} (x${i.qty})</li>`).join('');
                 }
@@ -925,6 +995,18 @@
                     const selisih = trx.items[0].qty;
                     amountText = `${selisih > 0 ? '+' : ''}${selisih} Unit`;
                     amountColor = selisih > 0 ? 'text-blue-600' : 'text-red-500';
+                } else if (isIncome) {
+                    badgeColor = 'bg-green-500';
+                    badgeIcon = 'plus-circle';
+                    badgeText = 'Pemasukan Lain';
+                    amountText = `+${formatRupiah(trx.total)}`;
+                    amountColor = 'text-dark-green';
+                } else if (isExpense) {
+                    badgeColor = 'bg-red-500';
+                    badgeIcon = 'minus-circle';
+                    badgeText = 'Pengeluaran Lain';
+                    amountText = `-${formatRupiah(trx.total)}`;
+                    amountColor = 'text-red-600';
                 }
 
                 const html = `
@@ -934,7 +1016,7 @@
                             <div>
                                 <span class="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-500 font-medium">${time} - ${dateStr}</span>
                                 <h3 class="font-bold text-sm mt-1 flex items-center gap-1">
-                                    <i data-lucide="${badgeIcon}" class="w-4 h-4 ${isSale ? 'text-dark-green' : (isAdjustment ? 'text-blue-500' : 'text-orange-500')}"></i> ${badgeText}
+                                    <i data-lucide="${badgeIcon}" class="w-4 h-4 ${isSale ? 'text-dark-green' : (isAdjustment ? 'text-blue-500' : (isIncome ? 'text-green-500' : 'text-orange-500'))}"></i> ${badgeText}
                                 </h3>
                                 ${isSale && trx.customer ? `<p class="text-[10px] text-gray-500 mt-1"><i data-lucide="user" class="w-3 h-3 inline"></i> ${trx.customer}</p>` : ''}
                             </div>
@@ -1175,18 +1257,17 @@
         function simpanEditBarang() {
             const id = document.getElementById('edit-id').value;
             const nama = document.getElementById('edit-nama').value;
-            const modalVal = parseInt(document.getElementById('edit-modal').value);
             const jual = parseInt(document.getElementById('edit-jual').value);
 
-            if(!nama || isNaN(modalVal) || isNaN(jual)) {
-                showModal("Gagal", "Mohon lengkapi semua form dengan benar.", false);
+            if(!nama || isNaN(jual)) {
+                showModal("Gagal", "Mohon lengkapi form Nama Barang dan Harga Jual dengan benar.", false);
                 return;
             }
 
             const index = state.inventory.findIndex(i => i.id == id);
             if(index !== -1) {
                 state.inventory[index].name = nama;
-                state.inventory[index].cost = modalVal;
+                // Harga beli / cost tidak lagi ditimpa di sini, melainkan mengikuti update dari Restok
                 state.inventory[index].price = jual;
                 
                 const modal = document.getElementById('modal-product-edit');
@@ -1195,80 +1276,6 @@
                     modal.classList.add('hidden');
                     updateAllViews();
                     showModal("Berhasil", "Data barang berhasil diperbarui.", true);
-                }, 300);
-            }
-        }
-
-        function bukaModalPembelian() {
-            if(!currentDetailId) return;
-            const item = state.inventory.find(i => i.id == currentDetailId);
-            if(!item) return;
-
-            document.getElementById('beli-nama-barang').textContent = item.name;
-            document.getElementById('beli-modal').value = item.cost > 0 ? item.cost : '';
-            document.getElementById('beli-jual').value = item.price > 0 ? item.price : '';
-            document.getElementById('beli-stok').value = '';
-
-            closeProductDetail();
-            
-            setTimeout(() => {
-                const modal = document.getElementById('modal-pembelian');
-                const modalContent = document.getElementById('modal-pembelian-content');
-                modal.classList.remove('hidden');
-                lucide.createIcons();
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    modalContent.classList.remove('scale-95');
-                    modalContent.classList.add('scale-100');
-                }, 10);
-            }, 300);
-        }
-
-        function closeModalPembelian() {
-            const modal = document.getElementById('modal-pembelian');
-            const modalContent = document.getElementById('modal-pembelian-content');
-            
-            modal.classList.add('opacity-0');
-            modalContent.classList.remove('scale-100');
-            modalContent.classList.add('scale-95');
-
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                if(currentDetailId) showProductDetail(currentDetailId);
-            }, 300);
-        }
-
-        function simpanPembelian() {
-            const modalVal = parseInt(document.getElementById('beli-modal').value);
-            const jual = parseInt(document.getElementById('beli-jual').value);
-            const stokMasuk = parseInt(document.getElementById('beli-stok').value);
-
-            if(isNaN(modalVal) || isNaN(jual) || isNaN(stokMasuk) || stokMasuk <= 0) {
-                showModal("Gagal", "Mohon isi nominal dan jumlah stok dengan benar.", false);
-                return;
-            }
-
-            const item = state.inventory.find(i => i.id == currentDetailId);
-            if(item) {
-                item.cost = modalVal;
-                item.price = jual;
-                item.stock += stokMasuk;
-
-                state.history.unshift({
-                    id: generateId(),
-                    date: new Date(),
-                    type: 'RESTOCK',
-                    items: [{id: item.id, name: item.name, qty: stokMasuk}],
-                    total: modalVal * stokMasuk,
-                    profit: 0
-                });
-
-                const modal = document.getElementById('modal-pembelian');
-                modal.classList.add('opacity-0');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    updateAllViews();
-                    showModal("Berhasil", "Pembelian stok berhasil dicatat ke sistem.", true);
                 }, 300);
             }
         }
@@ -1292,6 +1299,114 @@
                     }, 300);
                 }
             );
+        }
+
+        // --- Fitur Baru: Pembelian Stok Global ---
+        function calculateUnitCostGlobal() {
+            const totalModal = parseInt(document.getElementById('beli-global-total-modal').value) || 0;
+            const totalStok = parseInt(document.getElementById('beli-global-stok').value) || 0;
+            const infoSatuan = document.getElementById('beli-global-info-satuan');
+
+            if (totalStok > 0 && totalModal >= 0) {
+                const unitCost = Math.floor(totalModal / totalStok);
+                infoSatuan.textContent = formatRupiah(unitCost);
+            } else {
+                infoSatuan.textContent = 'Rp 0';
+            }
+        }
+
+        function bukaModalPembelianGlobal() {
+            const selectEl = document.getElementById('beli-global-id');
+            selectEl.innerHTML = '<option value="">-- Pilih Barang --</option>';
+            state.inventory.forEach(item => {
+                selectEl.insertAdjacentHTML('beforeend', `<option value="${item.id}">${item.name}</option>`);
+            });
+
+            document.getElementById('beli-global-total-modal').value = '';
+            document.getElementById('beli-global-jual').value = '';
+            document.getElementById('beli-global-stok').value = '';
+            document.getElementById('beli-global-info-satuan').textContent = 'Rp 0';
+
+            const modal = document.getElementById('modal-pembelian-global');
+            const modalContent = document.getElementById('modal-pembelian-global-content');
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function autofillPembelianGlobal() {
+            const id = document.getElementById('beli-global-id').value;
+            if(!id) {
+                document.getElementById('beli-global-total-modal').value = '';
+                document.getElementById('beli-global-stok').value = '';
+                document.getElementById('beli-global-jual').value = '';
+                calculateUnitCostGlobal();
+                return;
+            }
+            const item = state.inventory.find(i => i.id == id);
+            if(item) {
+                // Tidak mengisi total modal karena jumlah dibeli (stok) belum diisi
+                document.getElementById('beli-global-total-modal').value = '';
+                document.getElementById('beli-global-stok').value = '';
+                document.getElementById('beli-global-jual').value = item.price > 0 ? item.price : '';
+                document.getElementById('beli-global-info-satuan').textContent = `(Sistem Lama: ${formatRupiah(item.cost)})`;
+            }
+        }
+
+        function closeModalPembelianGlobal() {
+            const modal = document.getElementById('modal-pembelian-global');
+            const modalContent = document.getElementById('modal-pembelian-global-content');
+            
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function simpanPembelianGlobal() {
+            const id = document.getElementById('beli-global-id').value;
+            const totalModalVal = parseInt(document.getElementById('beli-global-total-modal').value);
+            const jual = parseInt(document.getElementById('beli-global-jual').value);
+            const stokMasuk = parseInt(document.getElementById('beli-global-stok').value);
+
+            if(!id || isNaN(totalModalVal) || isNaN(jual) || isNaN(stokMasuk) || stokMasuk <= 0 || totalModalVal < 0) {
+                showModal("Gagal", "Mohon lengkapi semua form dengan benar.", false);
+                return;
+            }
+
+            // Hitung harga modal per-satuan untuk disimpan di database barang
+            const unitCost = Math.floor(totalModalVal / stokMasuk);
+
+            const item = state.inventory.find(i => i.id == id);
+            if(item) {
+                // Harga beli terbaru (per-satuan) akan menimpa harga beli lama
+                item.cost = unitCost;
+                item.price = jual;
+                item.stock += stokMasuk;
+
+                state.history.unshift({
+                    id: generateId(),
+                    date: new Date(),
+                    type: 'RESTOCK',
+                    items: [{id: item.id, name: item.name, qty: stokMasuk}],
+                    total: totalModalVal, // Yang dicatat ke riwayat uang keluar adalah Total Modal
+                    profit: 0
+                });
+
+                closeModalPembelianGlobal();
+                setTimeout(() => {
+                    updateAllViews();
+                    showModal("Berhasil", "Pembelian stok berhasil dicatat ke sistem.", true);
+                }, 300);
+            }
         }
 
         // --- Fitur Baru: Render Stok Opname ---
@@ -1380,6 +1495,75 @@
 
             updateAllViews();
             showModal("Penyesuaian Berhasil", `Stok "${item.name}" disesuaikan menjadi ${stokFisik} unit (Selisih: ${selisih > 0 ? '+' : ''}${selisih}).`, true);
+        }
+
+        // --- Fitur Baru: Input Keuangan Manual (Pemasukan / Pengeluaran) ---
+        let tipeKeuanganAktif = 'INCOME';
+
+        function bukaModalKeuangan(tipe) {
+            tipeKeuanganAktif = tipe;
+            const titleEl = document.getElementById('keuangan-title');
+            
+            if(tipe === 'INCOME') {
+                titleEl.textContent = 'Input Pemasukan';
+                titleEl.className = 'text-lg font-bold text-dark-green mb-4 border-b pb-2';
+            } else {
+                titleEl.textContent = 'Input Pengeluaran';
+                titleEl.className = 'text-lg font-bold text-red-600 mb-4 border-b pb-2';
+            }
+
+            document.getElementById('keuangan-nominal').value = '';
+            document.getElementById('keuangan-catatan').value = '';
+
+            const modal = document.getElementById('modal-keuangan');
+            const modalContent = document.getElementById('modal-keuangan-content');
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModalKeuangan() {
+            const modal = document.getElementById('modal-keuangan');
+            const modalContent = document.getElementById('modal-keuangan-content');
+            
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function simpanKeuangan() {
+            const nominal = parseInt(document.getElementById('keuangan-nominal').value);
+            const catatan = document.getElementById('keuangan-catatan').value;
+
+            if(isNaN(nominal) || nominal <= 0 || !catatan) {
+                showModal("Gagal", "Mohon isi nominal dan keterangan dengan benar.", false);
+                return;
+            }
+
+            state.history.unshift({
+                id: generateId(),
+                date: new Date(),
+                type: tipeKeuanganAktif,
+                note: catatan,
+                total: nominal,
+                profit: tipeKeuanganAktif === 'INCOME' ? nominal : -nominal
+            });
+
+            closeModalKeuangan();
+            setTimeout(() => {
+                updateAllViews();
+                const jenis = tipeKeuanganAktif === 'INCOME' ? 'Pemasukan' : 'Pengeluaran';
+                showModal("Berhasil", `Catatan ${jenis} berhasil ditambahkan.`, true);
+            }, 300);
         }
 
         // --- Ekspor & Info ---
