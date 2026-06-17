@@ -70,13 +70,6 @@
                 <p id="auth-error-msg" class="text-xs text-red-500 font-medium text-center hidden"></p>
                 <button onclick="prosesAuth()" id="btn-auth" class="w-full bg-dark-green text-white p-3 rounded-xl font-bold mt-2 hover:bg-light-green transition shadow-sm">Login</button>
             </div>
-            
-            <div class="mt-6 text-center">
-                <p class="text-xs text-gray-500">
-                    <span id="auth-switch-text">Belum punya akun?</span> 
-                    <button onclick="switchAuthMode()" id="btn-auth-switch" class="text-dark-green font-bold hover:underline ml-1">Daftar di sini</button>
-                </p>
-            </div>
         </div>
     </div>
 
@@ -137,7 +130,7 @@
                         <div class="bg-green-100 p-1.5 rounded-lg">
                             <i data-lucide="wallet" class="text-dark-green w-4 h-4"></i>
                         </div>
-                        <p class="text-xs text-gray-500 font-medium">Omset</p>
+                        <p class="text-xs text-gray-500 font-medium">Penjualan</p>
                     </div>
                     <h3 class="text-lg font-bold text-gray-800" id="dash-omset">Rp 0</h3>
                 </div>
@@ -175,11 +168,11 @@
                 <div class="col-span-2 bg-gradient-to-r from-dark-green to-light-green p-5 rounded-2xl shadow-soft text-white">
                     <div class="flex items-center gap-2 mb-2">
                         <div class="bg-white/20 p-2 rounded-xl">
-                            <i data-lucide="trending-up" class="text-white w-5 h-5"></i>
+                            <i data-lucide="banknote" class="text-white w-5 h-5"></i>
                         </div>
-                        <p class="text-xs text-green-100 font-medium">Laba Bersih</p>
+                        <p class="text-xs text-green-100 font-medium">Uang Kas</p>
                     </div>
-                    <h3 class="text-2xl font-bold" id="dash-laba">Rp 0</h3>
+                    <h3 class="text-2xl font-bold" id="dash-uang-kas">Rp 0</h3>
                 </div>
             </div>
             
@@ -243,7 +236,7 @@
                         <label class="text-xs text-gray-500 mb-1 block">Nama Barang</label>
                         <input type="text" id="input-nama" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green" placeholder="Mis: Voucher Telkomsel 10GB">
                     </div>
-                    <button onclick="simpanBarang()" class="w-full bg-dark-green text-white p-3 rounded-xl font-bold mt-2 hover:bg-light-green transition">Simpan Barang</button>
+                    <button id="btn-simpan-barang" onclick="simpanBarang()" class="w-full bg-dark-green text-white p-3 rounded-xl font-bold mt-2 hover:bg-light-green transition">Simpan Barang</button>
                 </div>
             </div>
 
@@ -327,7 +320,7 @@
     </main>
 
     <!-- Modal Konfirmasi/Pesan -->
-    <div id="modal-message" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden opacity-0 transition-opacity">
+    <div id="modal-message" class="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center hidden opacity-0 transition-opacity">
         <div class="bg-white p-6 rounded-2xl shadow-soft w-11/12 max-w-sm transform scale-95 transition-transform" id="modal-content">
             <div class="text-center">
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4" id="modal-icon-container">
@@ -347,7 +340,7 @@
     </div>
 
     <!-- Modal Konfirmasi Custom (Pengganti confirm browser) -->
-    <div id="modal-confirm" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden opacity-0 transition-opacity">
+    <div id="modal-confirm" class="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center hidden opacity-0 transition-opacity">
         <div class="bg-white p-6 rounded-2xl shadow-soft w-11/12 max-w-sm transform scale-95 transition-transform" id="modal-confirm-content">
             <div class="text-center">
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
@@ -365,7 +358,7 @@
         </div>
     </div>
 
-    <!-- Modal Detail Produk -->
+    <!-- Modal Detail Produk (Logistik) -->
     <div id="modal-product-detail" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden opacity-0 transition-opacity">
         <div class="bg-white p-6 rounded-2xl shadow-soft w-11/12 max-w-md max-h-[85vh] overflow-y-auto transform scale-95 transition-transform" id="modal-detail-content">
             <div class="flex justify-between items-center mb-4">
@@ -409,7 +402,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="text-xs text-gray-500 mb-1 block">Harga Beli <span class="text-[10px] text-red-400">(Hanya dari Restok)</span></label>
+                        <label class="text-xs text-gray-500 mb-1 block">Harga Beli Terakhir <span class="text-[10px] text-red-400">(Auto dari Restok)</span></label>
                         <input type="number" id="edit-modal" class="w-full bg-gray-100 text-gray-500 p-2 rounded-xl border border-gray-200 cursor-not-allowed outline-none" readonly disabled>
                     </div>
                     <div>
@@ -423,7 +416,7 @@
                 </div>
                 <div class="mt-5 flex gap-3">
                     <button onclick="closeEditModal()" class="w-1/2 rounded-xl border border-gray-200 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm font-medium">Batal</button>
-                    <button onclick="simpanEditBarang()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm">Simpan</button>
+                    <button id="btn-simpan-edit" onclick="simpanEditBarang()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm">Simpan</button>
                 </div>
             </div>
         </div>
@@ -512,7 +505,7 @@
                 </div>
                 <div class="mt-5 flex gap-3">
                     <button onclick="closeModalPembelianGlobal()" class="w-1/2 rounded-xl border border-gray-200 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm font-medium">Batal</button>
-                    <button onclick="simpanPembelianGlobal()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm">Simpan</button>
+                    <button id="btn-simpan-pembelian" onclick="simpanPembelianGlobal()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm">Simpan</button>
                 </div>
             </div>
         </div>
@@ -533,7 +526,53 @@
                 </div>
                 <div class="mt-5 flex gap-3">
                     <button onclick="closeModalKeuangan()" class="w-1/2 rounded-xl border border-gray-200 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm font-medium">Batal</button>
-                    <button onclick="simpanKeuangan()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm">Simpan</button>
+                    <button id="btn-simpan-keuangan" onclick="simpanKeuangan()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pop-up Detail Riwayat -->
+    <div id="modal-history-detail" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden opacity-0 transition-opacity">
+        <div class="bg-white p-6 rounded-2xl shadow-soft w-11/12 max-w-md max-h-[85vh] overflow-y-auto transform scale-95 transition-transform" id="modal-history-content">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h3 class="text-lg font-bold text-dark-green">Detail Transaksi</h3>
+                <button onclick="closeHistoryDetail()" class="text-gray-400 hover:text-gray-600 bg-gray-100 p-1 rounded-full">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Isi dari detail riwayat akan di-inject oleh JS -->
+            <div id="history-detail-body" class="space-y-3 mb-6 text-sm">
+            </div>
+
+            <div class="mt-4 flex gap-3">
+                <button onclick="deleteHistoryItem()" class="w-1/3 inline-flex justify-center rounded-xl border border-red-200 shadow-sm px-4 py-2 bg-red-50 text-base font-medium text-red-600 hover:bg-red-100 sm:text-sm transition">
+                    <i data-lucide="trash-2" class="w-4 h-4 mr-1 mt-0.5"></i> Hapus
+                </button>
+                <button id="btn-edit-history" onclick="editHistoryItem()" class="w-2/3 inline-flex justify-center rounded-xl border border-gray-200 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:text-sm transition">
+                    <i data-lucide="edit" class="w-4 h-4 mr-1 mt-0.5"></i> Edit Catatan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Catatan Riwayat -->
+    <div id="modal-history-edit" class="fixed inset-0 bg-black bg-opacity-50 z-[55] flex items-center justify-center hidden opacity-0 transition-opacity">
+        <div class="bg-white p-6 rounded-2xl shadow-soft w-11/12 max-w-sm transform scale-95 transition-transform" id="modal-history-edit-content">
+            <h3 class="text-lg font-bold text-dark-green mb-4">Edit Info Transaksi</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-gray-500 mb-1 block" id="label-history-edit">Catatan / Nama Pelanggan</label>
+                    <input type="text" id="input-history-edit" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green">
+                </div>
+                <div id="container-history-edit-nominal" class="hidden mt-1">
+                    <label class="text-xs text-gray-500 mb-1 block">Nominal (Rp)</label>
+                    <input type="number" id="input-history-edit-nominal" class="w-full bg-cream p-2 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green">
+                </div>
+                <div class="mt-5 flex gap-3">
+                    <button onclick="closeHistoryEdit()" class="w-1/2 rounded-xl border border-gray-200 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm font-medium">Batal</button>
+                    <button id="btn-simpan-history-edit" onclick="saveHistoryEdit()" class="w-1/2 bg-dark-green text-white px-4 py-2 rounded-xl font-bold hover:bg-light-green transition shadow-sm">Simpan</button>
                 </div>
             </div>
         </div>
@@ -586,6 +625,7 @@
         const db = getFirestore(app);
         const appIdStr = "mikhacell"; 
         let currentUserId = null;
+        let currentUserEmail = null;
 
         // --- Multi-Branch State ---
         let activeBranch = 'all'; // 'all', 'cabang1', 'cabang2'
@@ -643,12 +683,14 @@
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     currentUserId = user.uid;
+                    currentUserEmail = user.email;
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('main-app').classList.remove('hidden');
                     document.getElementById('header-date').textContent = "Menghubungkan ke Cloud...";
                     setupRealtimeListeners();
                 } else {
                     currentUserId = null;
+                    currentUserEmail = null;
                     document.getElementById('login-screen').classList.remove('hidden');
                     document.getElementById('main-app').classList.add('hidden');
                     
@@ -700,7 +742,7 @@
                 return;
             }
 
-            // Listen ke cabang yang diizinkan (Menggunakan public data path agar bisa di-share antar akun)
+            // Listen ke cabang yang diizinkan
             branchesToListen.forEach(branch => {
                 const invRef = collection(db, 'artifacts', appIdStr, 'public', 'data', branch + '_inventory');
                 const unsubInv = onSnapshot(invRef, (snapshot) => {
@@ -744,7 +786,6 @@
 
         function getActiveInventory() {
             if(activeBranch === 'all') {
-                // Untuk keperluan pencarian global di dashboard (jika ada) - kasir/logistik akan memblokir 'all'
                 return [...state.cabang1.inventory, ...state.cabang2.inventory];
             }
             return state[activeBranch].inventory;
@@ -752,12 +793,12 @@
 
         function getActiveHistory() {
             if(activeBranch === 'all') {
-                const h1 = state.cabang1.history.map(h => ({...h, branchName: 'Cabang 1'}));
-                const h2 = state.cabang2.history.map(h => ({...h, branchName: 'Cabang 2'}));
+                const h1 = state.cabang1.history.map(h => ({...h, branchName: 'Cabang 1', branchId: 'cabang1'}));
+                const h2 = state.cabang2.history.map(h => ({...h, branchName: 'Cabang 2', branchId: 'cabang2'}));
                 const combined = [...h1, ...h2];
                 return combined.sort((a, b) => b.date - a.date);
             }
-            return state[activeBranch].history.map(h => ({...h, branchName: activeBranch === 'cabang1' ? 'Cabang 1' : 'Cabang 2'}));
+            return state[activeBranch].history.map(h => ({...h, branchName: activeBranch === 'cabang1' ? 'Cabang 1' : 'Cabang 2', branchId: activeBranch}));
         }
 
         // --- Navigation Logic ---
@@ -792,7 +833,6 @@
         // --- Render Dashboard ---
         function renderDashboard() {
             let totalOmset = 0;
-            let totalLaba = 0;
             let totalPengeluaran = 0;
             let totalKerugianStok = 0;
             let totalTerjual = 0;
@@ -812,28 +852,26 @@
             filteredHistory.forEach(trx => {
                 if(trx.type === 'SALE') {
                     totalOmset += trx.total;
-                    totalLaba += trx.profit;
                     trx.items.forEach(i => totalTerjual += i.qty);
                 } else if (trx.type === 'RESTOCK') {
                     totalPengeluaran += trx.total;
                 } else if (trx.type === 'INCOME') {
                     totalOmset += trx.total;
-                    totalLaba += trx.total;
                 } else if (trx.type === 'EXPENSE') {
                     totalPengeluaran += trx.total;
-                    totalLaba -= trx.total;
                 } else if (trx.type === 'ADJUSTMENT') {
                     if (trx.profit < 0) {
                         totalKerugianStok += Math.abs(trx.profit);
                     }
-                    totalLaba += trx.profit; 
                 }
             });
+
+            const uangKas = totalOmset - totalPengeluaran;
 
             document.getElementById('dash-omset').textContent = formatRupiah(totalOmset);
             document.getElementById('dash-pengeluaran').textContent = formatRupiah(totalPengeluaran);
             document.getElementById('dash-kerugian').textContent = formatRupiah(totalKerugianStok);
-            document.getElementById('dash-laba').textContent = formatRupiah(totalLaba);
+            document.getElementById('dash-uang-kas').textContent = formatRupiah(uangKas);
             document.getElementById('dash-aset').textContent = formatRupiah(nilaiAset);
             document.getElementById('dash-sold').innerHTML = `${totalTerjual} <span class="text-sm font-normal">item</span>`;
         }
@@ -909,6 +947,12 @@
 
             if(!currentUserId) return;
 
+            const btn = document.getElementById('btn-simpan-barang');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = 'Memproses...';
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+
             try {
                 const docRef = doc(collection(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_inventory'));
                 await setDoc(docRef, {
@@ -923,6 +967,10 @@
                 showModal("Berhasil", "Data barang baru dibuat di " + (activeBranch === 'cabang1' ? 'Cabang 1' : 'Cabang 2') + ".", true);
             } catch(e) {
                 showModal("Gagal", e.message, false);
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
             }
         }
 
@@ -1142,7 +1190,11 @@
                 return;
             }
 
-            closeCheckoutPreview();
+            const btn = document.getElementById('btn-process-checkout');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = 'Memproses...';
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
 
             try {
                 let totalCost = 0;
@@ -1176,18 +1228,25 @@
                     total: finalTotal,
                     profit: totalProfit,
                     cash: cashGiven,
-                    change: cashGiven - finalTotal
+                    change: cashGiven - finalTotal,
+                    userEmail: currentUserEmail // Menyimpan data email
                 });
 
                 state.cart = []; 
                 currentCheckoutSubtotal = 0;
                 
+                closeCheckoutPreview();
                 setTimeout(() => {
                     updateAllViews();
                     showModal("Transaksi Berhasil!", `Kembalian pelanggan: ${formatRupiah(cashGiven - finalTotal)}`, true);
                 }, 300);
             } catch(e) {
                 showModal("Gagal", e.message, false);
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                lucide.createIcons();
             }
         }
 
@@ -1257,19 +1316,23 @@
                     amountColor = 'text-red-600';
                 }
 
-                // Tampilkan badge cabang jika sedang di mode Semua Cabang
                 const branchBadge = activeBranch === 'all' ? `<span class="bg-gray-200 text-gray-700 text-[9px] px-1.5 py-0.5 rounded font-bold ml-1 align-middle">${trx.branchName}</span>` : '';
+                const editedBadge = trx.isEdited ? `<span class="bg-yellow-100 text-yellow-600 text-[9px] px-1.5 py-0.5 rounded font-bold ml-1 align-middle" title="Diedit oleh: ${trx.editedBy || 'Sistem'}">Diedit</span>` : '';
 
+                // Membuka pop up detail saat kartu di klik
                 const html = `
-                    <div class="bg-white p-4 rounded-2xl shadow-soft border border-gray-100 relative overflow-hidden">
+                    <div onclick="showHistoryDetail('${trx.id}', '${trx.branchId}')" class="bg-white p-4 rounded-2xl shadow-soft border border-gray-100 relative overflow-hidden cursor-pointer hover:bg-gray-50 transition">
                         <div class="absolute top-0 left-0 w-1 h-full ${badgeColor}"></div>
                         <div class="flex justify-between items-start mb-2">
                             <div>
                                 <span class="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-500 font-medium">${time} - ${dateStr}</span>
                                 <h3 class="font-bold text-sm mt-1 flex items-center gap-1">
-                                    <i data-lucide="${badgeIcon}" class="w-4 h-4 ${isSale ? 'text-dark-green' : (isAdjustment ? 'text-blue-500' : (isIncome ? 'text-green-500' : 'text-orange-500'))}"></i> ${badgeText} ${branchBadge}
+                                    <i data-lucide="${badgeIcon}" class="w-4 h-4 ${isSale ? 'text-dark-green' : (isAdjustment ? 'text-blue-500' : (isIncome ? 'text-green-500' : 'text-orange-500'))}"></i> ${badgeText} ${branchBadge} ${editedBadge}
                                 </h3>
-                                ${isSale && trx.customer ? `<p class="text-[10px] text-gray-500 mt-1"><i data-lucide="user" class="w-3 h-3 inline"></i> ${trx.customer}</p>` : ''}
+                                <p class="text-[10px] text-gray-500 mt-1 flex items-center gap-1">
+                                    <i data-lucide="user" class="w-3 h-3"></i> Opr: ${trx.userEmail || 'Tidak diketahui'}
+                                </p>
+                                ${isSale && trx.customer ? `<p class="text-[10px] text-gray-500 mt-1"><i data-lucide="users" class="w-3 h-3 inline"></i> Plgn: ${trx.customer}</p>` : ''}
                             </div>
                             <div class="text-right">
                                 <p class="font-bold ${amountColor} text-sm">${amountText}</p>
@@ -1281,7 +1344,6 @@
                             <ul class="space-y-1">
                                 ${itemsListHtml}
                             </ul>
-                            ${isSale && trx.discount > 0 ? `<p class="text-[10px] text-orange-500 mt-1.5 pt-1.5 border-t border-gray-200 font-medium">Diskon Diberikan: ${formatRupiah(trx.discount)}</p>` : ''}
                         </div>
                     </div>
                 `;
@@ -1364,7 +1426,240 @@
             }, 300);
         }
 
-        // --- Fitur Detail, Edit & Hapus Produk ---
+        // --- Fitur Detail & Edit RIWAYAT ---
+        let currentHistoryId = null;
+        let currentHistoryBranchId = null;
+
+        function showHistoryDetail(id, branchId) {
+            const trx = state[branchId].history.find(h => h.id === id);
+            if (!trx) return;
+
+            currentHistoryId = id;
+            currentHistoryBranchId = branchId;
+
+            const time = trx.date.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Makassar'});
+            const dateStr = trx.date.toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year:'numeric', timeZone: 'Asia/Makassar'});
+            const body = document.getElementById('history-detail-body');
+            const btnEdit = document.getElementById('btn-edit-history');
+
+            let typeText = '';
+            let editable = false;
+            
+            if(trx.type === 'SALE') {
+                typeText = 'Penjualan Kasir';
+                editable = true;
+            } else if (trx.type === 'INCOME') {
+                typeText = 'Pemasukan Kas';
+                editable = true;
+            } else if (trx.type === 'EXPENSE') {
+                typeText = 'Pengeluaran Kas';
+                editable = true;
+            } else if (trx.type === 'RESTOCK') {
+                typeText = 'Restok Barang';
+                editable = false; // Restok terlalu rumit jika diedit dari sini
+            } else if (trx.type === 'ADJUSTMENT') {
+                typeText = 'Stok Opname (Penyesuaian)';
+                editable = false;
+            }
+
+            btnEdit.style.display = editable ? 'inline-flex' : 'none';
+
+            let itemsHtml = '';
+            if(trx.type === 'ADJUSTMENT') {
+                itemsHtml = trx.items.map(i => `<li><b>${i.name}</b><br>Stok Lama: ${i.prevStock} &rarr; Baru: ${i.newStock}<br>Alasan: ${i.reason}</li>`).join('');
+            } else if (trx.type === 'INCOME' || trx.type === 'EXPENSE') {
+                itemsHtml = `<li>Catatan: <b>${trx.note}</b></li>`;
+            } else {
+                itemsHtml = trx.items.map(i => `<li><b>${i.name}</b> (x${i.qty})<br>Harga: ${formatRupiah(i.price)}</li>`).join('');
+            }
+
+            const editBadge = trx.isEdited ? `<span class="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-0.5 rounded font-bold ml-2">Telah Diedit</span>` : '';
+
+            body.innerHTML = `
+                <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 mb-3">
+                    <p class="text-xs text-gray-500 mb-1">Waktu: <strong class="text-gray-800">${dateStr} - ${time}</strong></p>
+                    <p class="text-xs text-gray-500 mb-1">Tipe: <strong class="text-gray-800">${typeText}</strong> ${editBadge}</p>
+                    <p class="text-xs text-gray-500 mb-1">Operator Awal: <strong class="text-gray-800">${trx.userEmail || '-'}</strong></p>
+                    ${trx.isEdited && trx.editedBy ? `<p class="text-xs text-gray-500 mb-1">Diedit Oleh: <strong class="text-orange-600">${trx.editedBy}</strong></p>` : ''}
+                    ${trx.customer ? `<p class="text-xs text-gray-500">Pelanggan: <strong class="text-gray-800">${trx.customer}</strong></p>` : ''}
+                </div>
+                <div class="bg-cream p-3 rounded-xl border border-gray-100 mb-3">
+                    <h4 class="text-xs font-bold text-gray-700 mb-2 border-b border-gray-200 pb-1">Detail Rincian:</h4>
+                    <ul class="space-y-2 text-xs text-gray-600">
+                        ${itemsHtml}
+                    </ul>
+                </div>
+                <div class="bg-green-50 p-3 rounded-xl border border-green-100">
+                    <div class="flex justify-between items-center mb-1 text-xs text-gray-600">
+                        <span>Total Nilai:</span>
+                        <strong class="text-lg text-dark-green">${formatRupiah(trx.total)}</strong>
+                    </div>
+                    ${trx.type === 'SALE' ? `
+                        <div class="flex justify-between items-center text-xs text-gray-500"><span>Diskon:</span><span>${formatRupiah(trx.discount)}</span></div>
+                        <div class="flex justify-between items-center text-xs text-gray-500"><span>Tunai:</span><span>${formatRupiah(trx.cash)}</span></div>
+                        <div class="flex justify-between items-center text-xs text-gray-500"><span>Kembalian:</span><span>${formatRupiah(trx.change)}</span></div>
+                    ` : ''}
+                </div>
+            `;
+
+            const modal = document.getElementById('modal-history-detail');
+            const modalContent = document.getElementById('modal-history-content');
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeHistoryDetail() {
+            const modal = document.getElementById('modal-history-detail');
+            const modalContent = document.getElementById('modal-history-content');
+            
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function deleteHistoryItem() {
+            if(!currentHistoryId || !currentHistoryBranchId) return;
+
+            showConfirmModal(
+                "Hapus Riwayat", 
+                "Apakah Anda yakin ingin menghapus data riwayat ini? PENTING: Menghapus riwayat TIDAK AKAN mengembalikan atau mengubah stok barang secara otomatis.", 
+                async () => {
+                    try {
+                        await deleteDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', currentHistoryBranchId + '_history', currentHistoryId));
+                        
+                        closeHistoryDetail();
+                        setTimeout(() => {
+                            showModal("Terhapus", "Data riwayat berhasil dihapus.", true);
+                        }, 300);
+                    } catch(e) {
+                        showModal("Gagal", e.message, false);
+                    }
+                }
+            );
+        }
+
+        function editHistoryItem() {
+            if(!currentHistoryId || !currentHistoryBranchId) return;
+            const trx = state[currentHistoryBranchId].history.find(h => h.id === currentHistoryId);
+            if (!trx) return;
+
+            const labelEl = document.getElementById('label-history-edit');
+            const inputEl = document.getElementById('input-history-edit');
+            const nominalContainer = document.getElementById('container-history-edit-nominal');
+            const nominalInput = document.getElementById('input-history-edit-nominal');
+
+            if(trx.type === 'SALE') {
+                labelEl.textContent = "Ubah Nama Pelanggan";
+                inputEl.value = trx.customer || '';
+                nominalContainer.classList.add('hidden');
+            } else if (trx.type === 'INCOME' || trx.type === 'EXPENSE') {
+                labelEl.textContent = "Ubah Catatan Keterangan";
+                inputEl.value = trx.note || '';
+                nominalContainer.classList.remove('hidden');
+                nominalInput.value = trx.total || '';
+            } else {
+                return; // Guard
+            }
+
+            closeHistoryDetail();
+
+            setTimeout(() => {
+                const modal = document.getElementById('modal-history-edit');
+                const modalContent = document.getElementById('modal-history-edit-content');
+                modal.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modalContent.classList.remove('scale-95');
+                    modalContent.classList.add('scale-100');
+                }, 10);
+            }, 300);
+        }
+
+        function closeHistoryEdit() {
+            const modal = document.getElementById('modal-history-edit');
+            const modalContent = document.getElementById('modal-history-edit-content');
+            
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if(currentHistoryId) showHistoryDetail(currentHistoryId, currentHistoryBranchId);
+            }, 300);
+        }
+
+        async function saveHistoryEdit() {
+            if(!currentHistoryId || !currentHistoryBranchId) return;
+            const trx = state[currentHistoryBranchId].history.find(h => h.id === currentHistoryId);
+            if (!trx) return;
+
+            const newVal = document.getElementById('input-history-edit').value;
+            if(!newVal) {
+                showModal("Gagal", "Form catatan tidak boleh kosong.", false);
+                return;
+            }
+
+            let updateData = {};
+            if(trx.type === 'SALE') {
+                updateData = { 
+                    customer: newVal, 
+                    isEdited: true,
+                    editedBy: currentUserEmail // Merekam email pengguna yang mengedit
+                };
+            } else if (trx.type === 'INCOME' || trx.type === 'EXPENSE') {
+                const newNominal = parseInt(document.getElementById('input-history-edit-nominal').value);
+                if (isNaN(newNominal) || newNominal <= 0) {
+                    showModal("Gagal", "Nominal harus berupa angka yang valid dan lebih dari 0.", false);
+                    return;
+                }
+                updateData = { 
+                    note: newVal, 
+                    total: newNominal, 
+                    profit: (trx.type === 'INCOME' ? newNominal : -newNominal),
+                    isEdited: true,
+                    editedBy: currentUserEmail // Merekam email pengguna yang mengedit
+                };
+            }
+
+            const btn = document.getElementById('btn-simpan-history-edit');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = 'Memproses...';
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+
+            try {
+                const ref = doc(db, 'artifacts', appIdStr, 'public', 'data', currentHistoryBranchId + '_history', currentHistoryId);
+                await updateDoc(ref, updateData);
+                
+                const modal = document.getElementById('modal-history-edit');
+                modal.classList.add('opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    showModal("Berhasil", "Info riwayat berhasil diperbarui.", true);
+                }, 300);
+
+            } catch(e) {
+                showModal("Gagal", e.message, false);
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+        }
+
+        // --- Fitur Detail, Edit & Hapus Produk (Logistik) ---
         let currentDetailId = null;
 
         function showProductDetail(id) {
@@ -1383,7 +1678,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                        <p class="text-[10px] text-gray-500 uppercase tracking-wider">Harga Beli / Modal</p>
+                        <p class="text-[10px] text-gray-500 uppercase tracking-wider">Harga Beli Terakhir</p>
                         <p class="font-bold text-gray-800">${formatRupiah(item.cost)}</p>
                     </div>
                     <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
@@ -1520,6 +1815,12 @@
                 return;
             }
 
+            const btn = document.getElementById('btn-simpan-edit');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = 'Memproses...';
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+
             try {
                 const itemRef = doc(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_inventory', id);
                 await updateDoc(itemRef, { name: nama, price: jual });
@@ -1532,6 +1833,10 @@
                 }, 300);
             } catch(e) {
                 showModal("Gagal", e.message, false);
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
             }
         }
 
@@ -1545,6 +1850,12 @@
                 "Hapus Barang", 
                 `Yakin ingin menghapus "${item.name}"? Barang akan dihapus dari Logistik, namun riwayat transaksi lama tetap dipertahankan.`, 
                 async () => {
+                    const btn = document.getElementById('btn-confirm-yes');
+                    const originalHtml = btn.innerHTML;
+                    btn.innerHTML = 'Memproses...';
+                    btn.disabled = true;
+                    btn.classList.add('opacity-70', 'cursor-not-allowed');
+
                     try {
                         await deleteDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_inventory', currentDetailId));
                         state.cart = state.cart.filter(c => c.id != currentDetailId);
@@ -1555,6 +1866,10 @@
                         }, 300);
                     } catch(e) {
                         showModal("Gagal", e.message, false);
+                    } finally {
+                        btn.innerHTML = originalHtml;
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-70', 'cursor-not-allowed');
                     }
                 }
             );
@@ -1648,6 +1963,12 @@
                 return;
             }
 
+            const btn = document.getElementById('btn-simpan-pembelian');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = 'Memproses...';
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+
             try {
                 const unitCost = Math.floor(totalModalVal / stokMasuk);
                 const currentInv = getActiveInventory();
@@ -1665,7 +1986,8 @@
                     type: 'RESTOCK',
                     items: [{id: item.id, name: item.name, qty: stokMasuk}],
                     total: totalModalVal,
-                    profit: 0
+                    profit: 0,
+                    userEmail: currentUserEmail // Menyimpan data email
                 });
 
                 closeModalPembelianGlobal();
@@ -1674,6 +1996,10 @@
                 }, 300);
             } catch(e) {
                 showModal("Gagal", e.message, false);
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
             }
         }
 
@@ -1730,7 +2056,7 @@
                                 </select>
                             </div>
                         </div>
-                        <button onclick="prosesStokOpname('${item.id}')" class="w-full bg-dark-green text-white text-xs font-bold py-2 rounded-lg hover:bg-light-green transition flex justify-center items-center gap-1 shadow-sm">
+                        <button id="btn-opname-${item.id}" onclick="prosesStokOpname('${item.id}')" class="w-full bg-dark-green text-white text-xs font-bold py-2 rounded-lg hover:bg-light-green transition flex justify-center items-center gap-1 shadow-sm">
                             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sesuaikan Stok
                         </button>
                     </div>
@@ -1761,6 +2087,12 @@
                 return;
             }
 
+            const btn = document.getElementById(`btn-opname-${id}`);
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = 'Memproses...';
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+
             try {
                 const stokLama = item.stock;
                 const financialAdjustment = selisih * item.cost; 
@@ -1773,12 +2105,20 @@
                     type: 'ADJUSTMENT',
                     items: [{ id: item.id, name: item.name, qty: selisih, prevStock: stokLama, newStock: stokFisik, reason: alasan }],
                     total: Math.abs(financialAdjustment),
-                    profit: financialAdjustment
+                    profit: financialAdjustment,
+                    userEmail: currentUserEmail // Menyimpan data email
                 });
 
                 showModal("Penyesuaian Berhasil", `Stok "${item.name}" disesuaikan menjadi ${stokFisik} unit.`, true);
             } catch(e) {
                 showModal("Gagal", e.message, false);
+            } finally {
+                if (btn) {
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    lucide.createIcons();
+                }
             }
         }
 
@@ -1840,13 +2180,20 @@
                 return;
             }
 
+            const btn = document.getElementById('btn-simpan-keuangan');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = 'Memproses...';
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+
             try {
                 await addDoc(collection(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_history'), {
                     date: new Date(),
                     type: tipeKeuanganAktif,
                     note: catatan,
                     total: nominal,
-                    profit: tipeKeuanganAktif === 'INCOME' ? nominal : -nominal
+                    profit: tipeKeuanganAktif === 'INCOME' ? nominal : -nominal,
+                    userEmail: currentUserEmail // Menyimpan data email
                 });
 
                 closeModalKeuangan();
@@ -1856,6 +2203,10 @@
                 }, 300);
             } catch(e) {
                 showModal("Gagal", e.message, false);
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
             }
         }
 
@@ -1958,7 +2309,9 @@
             simpanPembelianGlobal, renderStokOpname, prosesStokOpname,
             bukaModalKeuangan, closeModalKeuangan, simpanKeuangan, eksporData, tentangApp,
             renderKasir, renderLogistik,
-            switchAuthMode, prosesAuth, prosesLogout
+            switchAuthMode, prosesAuth, prosesLogout,
+            showHistoryDetail, closeHistoryDetail, deleteHistoryItem,
+            editHistoryItem, closeHistoryEdit, saveHistoryEdit
         });
 
     </script>
