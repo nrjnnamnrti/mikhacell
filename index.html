@@ -311,13 +311,43 @@
                 <button onclick="tentangApp()" class="w-full bg-cream text-dark-green font-medium p-3 rounded-xl border border-gray-200 flex items-center gap-3 hover:bg-gray-100 transition text-sm">
                     <i data-lucide="info" class="w-5 h-5"></i> Tentang Aplikasi
                 </button>
-                <button onclick="prosesLogout()" class="w-full bg-red-50 text-red-600 font-medium p-3 rounded-xl border border-red-100 flex items-center gap-3 hover:bg-red-100 transition text-sm mt-4">
+                <div class="border-t border-gray-100 mt-2 pt-2"></div>
+                <button onclick="bukaModalReset()" class="w-full bg-red-50 text-red-600 font-medium p-3 rounded-xl border border-red-100 flex items-center gap-3 hover:bg-red-100 transition text-sm">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i> Reset Keseluruhan Data
+                </button>
+                <button onclick="prosesLogout()" class="w-full bg-red-50 text-red-600 font-medium p-3 rounded-xl border border-red-100 flex items-center gap-3 hover:bg-red-100 transition text-sm">
                     <i data-lucide="log-out" class="w-5 h-5"></i> Keluar (Logout)
                 </button>
             </div>
         </section>
 
     </main>
+
+    <!-- Modal Reset Keseluruhan Data -->
+    <div id="modal-reset" class="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center hidden opacity-0 transition-opacity">
+        <div class="bg-white p-6 rounded-2xl shadow-soft w-11/12 max-w-sm transform scale-95 transition-transform" id="modal-reset-content">
+            <div class="text-center mb-4">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i data-lucide="alert-triangle" class="h-6 w-6 text-red-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900">Reset Keseluruhan Data</h3>
+                <p class="text-xs text-red-500 mt-2 font-medium">PERINGATAN: Tindakan ini akan menghapus permanen seluruh data Logistik dan Riwayat dari sistem Cloud.</p>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-gray-500 mb-1 block">Ketik teks berikut untuk melanjutkan:</label>
+                    <div class="bg-gray-100 p-2 rounded-lg text-center select-all mb-2 border border-gray-200">
+                        <span class="text-xs font-bold text-gray-700">UNTUK MERESET DATA SILAHKAN HUBUNGI DEVELOPER</span>
+                    </div>
+                    <input type="text" id="input-reset-confirm" class="w-full bg-white p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 text-xs font-bold text-center" placeholder="Ketik teks konfirmasi di sini" autocomplete="off">
+                </div>
+                <div class="mt-5 flex gap-3">
+                    <button onclick="closeModalReset()" class="w-1/2 rounded-xl border border-gray-200 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 transition shadow-sm font-medium text-sm">Batal</button>
+                    <button id="btn-proses-reset" onclick="prosesResetData()" class="w-1/2 bg-red-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-red-700 transition shadow-sm text-sm">Reset Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Konfirmasi/Pesan -->
     <div id="modal-message" class="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center hidden opacity-0 transition-opacity">
@@ -2296,6 +2326,89 @@
             showModal("Mikha Cell Multi-Cabang v2.0", "Sistem Kasir Cloud dengan sinkronisasi Multi-Cabang real-time.", true);
         }
 
+        // --- Fitur Reset Keseluruhan Data ---
+        function bukaModalReset() {
+            document.getElementById('input-reset-confirm').value = '';
+            
+            const modal = document.getElementById('modal-reset');
+            const modalContent = document.getElementById('modal-reset-content');
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModalReset() {
+            const modal = document.getElementById('modal-reset');
+            const modalContent = document.getElementById('modal-reset-content');
+            
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        async function prosesResetData() {
+            const inputConfirm = document.getElementById('input-reset-confirm').value;
+            const requiredText = "UNTUK MERESET DATA SILAHKAN HUBUNGI DEVELOPER";
+
+            if (inputConfirm !== requiredText) {
+                showModal("Gagal", "Teks konfirmasi yang Anda ketik salah atau tidak sesuai.", false);
+                return;
+            }
+
+            if (!currentUserId) return;
+
+            const btn = document.getElementById('btn-proses-reset');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = 'Memproses...';
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+
+            try {
+                // Tentukan cabang mana yang berhak di-reset oleh akun yang sedang login
+                let branchesToReset = [];
+                if (currentUserEmail === 'admin@mikhacell.com') {
+                    branchesToReset = ['cabang1', 'cabang2'];
+                } else if (currentUserEmail === 'sophyansophan@gmail.com') {
+                    branchesToReset = ['cabang1'];
+                }
+
+                // Proses Hapus Data Massal ke Cloud Firebase
+                for (let branch of branchesToReset) {
+                    // 1. Hapus Koleksi Inventory
+                    const invArray = state[branch].inventory;
+                    for (let item of invArray) {
+                        await deleteDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', branch + '_inventory', item.id));
+                    }
+                    // 2. Hapus Koleksi History
+                    const histArray = state[branch].history;
+                    for (let trx of histArray) {
+                        await deleteDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', branch + '_history', trx.id));
+                    }
+                }
+
+                closeModalReset();
+                setTimeout(() => {
+                    showModal("Reset Selesai", "Seluruh data telah berhasil dikosongkan.", true);
+                }, 300);
+
+            } catch(e) {
+                showModal("Gagal Reset", e.message, false);
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+        }
+
         // --- Autentikasi Email/Password ---
         let isLoginMode = true;
 
@@ -2377,7 +2490,8 @@
             renderKasir, renderLogistik,
             switchAuthMode, prosesAuth, prosesLogout,
             showHistoryDetail, closeHistoryDetail, deleteHistoryItem,
-            editHistoryItem, closeHistoryEdit, saveHistoryEdit, voidHistoryItem
+            editHistoryItem, closeHistoryEdit, saveHistoryEdit, voidHistoryItem,
+            bukaModalReset, closeModalReset, prosesResetData
         });
 
     </script>
