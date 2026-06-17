@@ -47,6 +47,42 @@
 </head>
 <body class="bg-cream text-gray-800 font-sans min-h-screen pb-32">
 
+    <!-- Login Screen -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-cream z-50 fixed inset-0">
+        <div class="bg-white p-8 rounded-3xl shadow-soft w-full max-w-sm border border-gray-100 relative">
+            <div class="text-center mb-6">
+                <div class="bg-green-100 w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4">
+                    <i data-lucide="smartphone" class="w-8 h-8 text-dark-green"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-dark-green">Mikha Cell</h1>
+                <p class="text-sm text-gray-500 mt-1" id="login-subtitle">Silakan login untuk melanjutkan</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-gray-500 mb-1 block">Email</label>
+                    <input type="email" id="auth-email" class="w-full bg-cream p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green" placeholder="admin@mikhacell.com">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 mb-1 block">Password</label>
+                    <input type="password" id="auth-password" class="w-full bg-cream p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-dark-green" placeholder="••••••••">
+                </div>
+                <p id="auth-error-msg" class="text-xs text-red-500 font-medium text-center hidden"></p>
+                <button onclick="prosesAuth()" id="btn-auth" class="w-full bg-dark-green text-white p-3 rounded-xl font-bold mt-2 hover:bg-light-green transition shadow-sm">Login</button>
+            </div>
+            
+            <div class="mt-6 text-center">
+                <p class="text-xs text-gray-500">
+                    <span id="auth-switch-text">Belum punya akun?</span> 
+                    <button onclick="switchAuthMode()" id="btn-auth-switch" class="text-dark-green font-bold hover:underline ml-1">Daftar di sini</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wrapper Aplikasi Utama -->
+    <div id="main-app" class="hidden">
+
     <!-- Header -->
     <header class="bg-dark-green text-white p-5 sticky top-0 z-40 rounded-b-2xl shadow-soft flex justify-between items-center">
         <div>
@@ -110,12 +146,12 @@
 
                 <div class="bg-white p-4 rounded-2xl shadow-soft border border-gray-100">
                     <div class="flex items-center gap-2 mb-2">
-                        <div class="bg-blue-100 p-1.5 rounded-lg">
-                            <i data-lucide="trending-up" class="text-blue-600 w-4 h-4"></i>
+                        <div class="bg-red-100 p-1.5 rounded-lg">
+                            <i data-lucide="alert-circle" class="text-red-600 w-4 h-4"></i>
                         </div>
-                        <p class="text-xs text-gray-500 font-medium">Laba Bersih</p>
+                        <p class="text-xs text-gray-500 font-medium">Kerugian Stok</p>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-800" id="dash-laba">Rp 0</h3>
+                    <h3 class="text-lg font-bold text-gray-800" id="dash-kerugian">Rp 0</h3>
                 </div>
                 
                 <div class="bg-white p-4 rounded-2xl shadow-soft border border-gray-100">
@@ -126,6 +162,16 @@
                         <p class="text-xs text-gray-500 font-medium">Nilai Aset</p>
                     </div>
                     <h3 class="text-lg font-bold text-gray-800" id="dash-aset">Rp 0</h3>
+                </div>
+
+                <div class="col-span-2 bg-gradient-to-r from-dark-green to-light-green p-5 rounded-2xl shadow-soft text-white">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="bg-white/20 p-2 rounded-xl">
+                            <i data-lucide="trending-up" class="text-white w-5 h-5"></i>
+                        </div>
+                        <p class="text-xs text-green-100 font-medium">Laba Bersih</p>
+                    </div>
+                    <h3 class="text-2xl font-bold" id="dash-laba">Rp 0</h3>
                 </div>
             </div>
             
@@ -257,6 +303,9 @@
                 </button>
                 <button onclick="tentangApp()" class="w-full bg-cream text-dark-green font-medium p-3 rounded-xl border border-gray-200 flex items-center gap-3 hover:bg-gray-100 transition text-sm">
                     <i data-lucide="info" class="w-5 h-5"></i> Tentang Aplikasi
+                </button>
+                <button onclick="prosesLogout()" class="w-full bg-red-50 text-red-600 font-medium p-3 rounded-xl border border-red-100 flex items-center gap-3 hover:bg-red-100 transition text-sm mt-4">
+                    <i data-lucide="log-out" class="w-5 h-5"></i> Keluar (Logout)
                 </button>
             </div>
         </section>
@@ -500,16 +549,33 @@
         </button>
     </nav>
 
+    </div> <!-- Tutup main-app wrapper -->
+
     <!-- Application Logic -->
-    <script>
-        // --- In-Memory State ---
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Konfigurasi Firebase dari Pengguna
+        const firebaseConfig = {
+            apiKey: "AIzaSyCctoXsMzzbidP9KPbC8Bvw8ZPqX8JtUnM",
+            authDomain: "mikhacell.firebaseapp.com",
+            projectId: "mikhacell",
+            storageBucket: "mikhacell.firebasestorage.app",
+            messagingSenderId: "421653658865",
+            appId: "1:421653658865:web:4887e05b74d0b47e72fd50"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appIdStr = "mikhacell"; // Standar nama path database
+        let currentUserId = null;
+
+        // --- In-Memory State (Berfungsi sebagai penampung lokal dari sinkronisasi Firebase) ---
         let state = {
-            inventory: [
-                { id: 1, name: "Voucher Telkomsel 20GB", cost: 50000, price: 55000, stock: 15 },
-                { id: 2, name: "Charger Type-C Fast", cost: 25000, price: 45000, stock: 8 },
-                { id: 3, name: "Case Silikon Hitam", cost: 10000, price: 25000, stock: 20 },
-                { id: 4, name: "Kartu Perdana Indosat", cost: 12000, price: 15000, stock: 50 }
-            ],
+            inventory: [],
             history: [],
             cart: []
         };
@@ -549,7 +615,7 @@
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('header-date').textContent = formatDate(new Date());
+            document.getElementById('header-date').textContent = "Menghubungkan ke Cloud...";
             
             // Set input filter default ke hari ini (WITA)
             document.getElementById('dash-filter-start').value = filterStartDate;
@@ -559,6 +625,29 @@
 
             lucide.createIcons();
             
+            // Firebase Auth & Init
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUserId = user.uid;
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('main-app').classList.remove('hidden');
+                    document.getElementById('header-date').textContent = "Menghubungkan ke Cloud...";
+                    setupRealtimeListeners();
+                } else {
+                    currentUserId = null;
+                    document.getElementById('login-screen').classList.remove('hidden');
+                    document.getElementById('main-app').classList.add('hidden');
+                    
+                    if (unsubInventory) unsubInventory();
+                    if (unsubHistory) unsubHistory();
+                    
+                    state.inventory = [];
+                    state.history = [];
+                    state.cart = [];
+                    updateAllViews();
+                }
+            });
+
             // PWA Service Worker Registration
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
@@ -568,9 +657,42 @@
                 });
             }
 
-            // Initial render
+            // Initial render fallback
             updateAllViews();
         });
+
+        let unsubInventory = null;
+        let unsubHistory = null;
+
+        function setupRealtimeListeners() {
+            if(!currentUserId) return;
+
+            // Listener Logistik
+            const inventoryRef = collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory');
+            unsubInventory = onSnapshot(inventoryRef, (snapshot) => {
+                state.inventory = [];
+                snapshot.forEach(doc => {
+                    state.inventory.push({ id: doc.id, ...doc.data() });
+                });
+                updateAllViews(); // Update UI otomatis saat data di cloud berubah
+            }, (error) => console.error("Error inventory:", error));
+
+            // Listener Riwayat Transaksi
+            const historyRef = collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'history');
+            unsubHistory = onSnapshot(historyRef, (snapshot) => {
+                state.history = [];
+                snapshot.forEach(doc => {
+                    let data = doc.data();
+                    // Convert format cloud timestamp ke Javascript Date standard
+                    data.date = data.date && data.date.toDate ? data.date.toDate() : new Date();
+                    state.history.push({ id: doc.id, ...data });
+                });
+                state.history.sort((a, b) => b.date - a.date); // Urutkan terbaru di atas
+                updateAllViews();
+            }, (error) => console.error("Error history:", error));
+
+            document.getElementById('header-date').textContent = formatDate(new Date()) + " (Tersinkronisasi)";
+        }
 
         // --- Navigation Logic ---
         function switchView(viewName) {
@@ -606,6 +728,7 @@
             let totalOmset = 0;
             let totalLaba = 0;
             let totalPengeluaran = 0;
+            let totalKerugianStok = 0;
             let totalTerjual = 0;
             let nilaiAset = 0;
 
@@ -631,11 +754,17 @@
                 } else if (trx.type === 'EXPENSE') {
                     totalPengeluaran += trx.total;
                     totalLaba -= trx.total;
+                } else if (trx.type === 'ADJUSTMENT') {
+                    if (trx.profit < 0) {
+                        totalKerugianStok += Math.abs(trx.profit);
+                    }
+                    totalLaba += trx.profit; // Akan otomatis mengurangi laba bersih jika minus
                 }
             });
 
             document.getElementById('dash-omset').textContent = formatRupiah(totalOmset);
             document.getElementById('dash-pengeluaran').textContent = formatRupiah(totalPengeluaran);
+            document.getElementById('dash-kerugian').textContent = formatRupiah(totalKerugianStok);
             document.getElementById('dash-laba').textContent = formatRupiah(totalLaba);
             document.getElementById('dash-aset').textContent = formatRupiah(nilaiAset);
             document.getElementById('dash-sold').innerHTML = `${totalTerjual} <span class="text-sm font-normal">item</span>`;
@@ -678,7 +807,7 @@
             form.classList.toggle('hidden');
         }
 
-        function simpanBarang() {
+        async function simpanBarang() {
             const nama = document.getElementById('input-nama').value;
 
             if(!nama) {
@@ -686,21 +815,25 @@
                 return;
             }
 
-            const newId = generateId();
+            if(!currentUserId) return;
 
-            state.inventory.push({
-                id: newId,
-                name: nama,
-                cost: 0,
-                price: 0,
-                stock: 0
-            });
+            try {
+                // Simpan barang ke cloud database
+                const docRef = doc(collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory'));
+                await setDoc(docRef, {
+                    name: nama,
+                    cost: 0,
+                    price: 0,
+                    stock: 0
+                });
 
-            document.getElementById('input-nama').value = '';
-            
-            toggleFormLogistik();
-            updateAllViews();
-            showModal("Berhasil", "Data barang baru dibuat. Silakan buka detail barang tersebut untuk mencatat Pembelian Stok.", true);
+                document.getElementById('input-nama').value = '';
+                
+                toggleFormLogistik();
+                showModal("Berhasil", "Data barang baru dibuat. Silakan buka detail barang tersebut untuk mencatat Pembelian Stok.", true);
+            } catch(e) {
+                showModal("Gagal", e.message, false);
+            }
         }
 
         // --- Render Kasir ---
@@ -884,8 +1017,8 @@
             }, 300);
         }
 
-        function processCheckout() {
-            if(state.cart.length === 0) return;
+        async function processCheckout() {
+            if(state.cart.length === 0 || !currentUserId) return;
 
             const customerName = document.getElementById('checkout-customer').value || 'Pelanggan Umum';
             const discount = parseInt(document.getElementById('checkout-discount').value) || 0;
@@ -901,47 +1034,52 @@
 
             closeCheckoutPreview();
 
-            let totalSales = finalTotal;
-            let totalCost = 0;
-            let soldItems = [];
+            try {
+                let totalCost = 0;
+                let soldItems = [];
 
-            state.cart.forEach(cartItem => {
-                const invItem = state.inventory.find(i => i.id == cartItem.id);
-                if(invItem) {
-                    invItem.stock -= cartItem.qty;
-                    totalCost += (cartItem.cost * cartItem.qty);
-                    
-                    soldItems.push({
-                        id: cartItem.id,
-                        name: cartItem.name,
-                        qty: cartItem.qty,
-                        price: cartItem.price
-                    });
+                // Proses update stok di Cloud (berurutan)
+                for (let cartItem of state.cart) {
+                    const invItem = state.inventory.find(i => i.id == cartItem.id);
+                    if(invItem) {
+                        const itemRef = doc(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory', cartItem.id);
+                        await updateDoc(itemRef, { stock: invItem.stock - cartItem.qty });
+
+                        totalCost += (cartItem.cost * cartItem.qty);
+                        soldItems.push({
+                            id: cartItem.id,
+                            name: cartItem.name,
+                            qty: cartItem.qty,
+                            price: cartItem.price
+                        });
+                    }
                 }
-            });
 
-            const totalProfit = totalSales - totalCost;
+                const totalProfit = finalTotal - totalCost;
 
-            state.history.unshift({
-                id: generateId(),
-                date: new Date(),
-                type: 'SALE',
-                customer: customerName,
-                items: soldItems,
-                discount: discount,
-                total: totalSales,
-                profit: totalProfit,
-                cash: cashGiven,
-                change: cashGiven - finalTotal
-            });
+                // Tambahkan transaksi ke riwayat cloud
+                await addDoc(collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'history'), {
+                    date: new Date(),
+                    type: 'SALE',
+                    customer: customerName,
+                    items: soldItems,
+                    discount: discount,
+                    total: finalTotal,
+                    profit: totalProfit,
+                    cash: cashGiven,
+                    change: cashGiven - finalTotal
+                });
 
-            state.cart = [];
-            currentCheckoutSubtotal = 0;
-            
-            setTimeout(() => {
-                updateAllViews();
-                showModal("Transaksi Berhasil!", `Kembalian pelanggan: ${formatRupiah(cashGiven - finalTotal)}`, true);
-            }, 300);
+                state.cart = []; // Reset keranjang lokal
+                currentCheckoutSubtotal = 0;
+                
+                setTimeout(() => {
+                    updateAllViews();
+                    showModal("Transaksi Berhasil!", `Kembalian pelanggan: ${formatRupiah(cashGiven - finalTotal)}`, true);
+                }, 300);
+            } catch(e) {
+                showModal("Gagal", e.message, false);
+            }
         }
 
         // --- Render Riwayat ---
@@ -1023,6 +1161,7 @@
                             <div class="text-right">
                                 <p class="font-bold ${amountColor} text-sm">${amountText}</p>
                                 ${isSale ? `<p class="text-[10px] text-blue-500 font-medium">Laba: ${formatRupiah(trx.profit)}</p>` : ''}
+                                ${isAdjustment && trx.profit !== 0 ? `<p class="text-[10px] ${trx.profit < 0 ? 'text-red-500' : 'text-blue-500'} font-medium">${trx.profit < 0 ? 'Rugi:' : 'Untung:'} ${formatRupiah(Math.abs(trx.profit))}</p>` : ''}
                             </div>
                         </div>
                         <div class="bg-cream p-2 rounded-xl mt-2">
@@ -1254,29 +1393,29 @@
             }, 300);
         }
 
-        function simpanEditBarang() {
+        async function simpanEditBarang() {
             const id = document.getElementById('edit-id').value;
             const nama = document.getElementById('edit-nama').value;
             const jual = parseInt(document.getElementById('edit-jual').value);
 
-            if(!nama || isNaN(jual)) {
+            if(!nama || isNaN(jual) || !currentUserId) {
                 showModal("Gagal", "Mohon lengkapi form Nama Barang dan Harga Jual dengan benar.", false);
                 return;
             }
 
-            const index = state.inventory.findIndex(i => i.id == id);
-            if(index !== -1) {
-                state.inventory[index].name = nama;
-                // Harga beli / cost tidak lagi ditimpa di sini, melainkan mengikuti update dari Restok
-                state.inventory[index].price = jual;
+            try {
+                // Perbarui ke cloud
+                const itemRef = doc(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory', id);
+                await updateDoc(itemRef, { name: nama, price: jual });
                 
                 const modal = document.getElementById('modal-product-edit');
                 modal.classList.add('opacity-0');
                 setTimeout(() => {
                     modal.classList.add('hidden');
-                    updateAllViews();
                     showModal("Berhasil", "Data barang berhasil diperbarui.", true);
                 }, 300);
+            } catch(e) {
+                showModal("Gagal", e.message, false);
             }
         }
 
@@ -1288,15 +1427,19 @@
             showConfirmModal(
                 "Hapus Barang", 
                 `Yakin ingin menghapus "${item.name}"? Barang akan dihapus dari Logistik, namun riwayat transaksi lama tetap dipertahankan.`, 
-                () => {
-                    state.inventory = state.inventory.filter(i => i.id != currentDetailId);
-                    state.cart = state.cart.filter(c => c.id != currentDetailId);
-                    
-                    closeProductDetail();
-                    setTimeout(() => {
-                        updateAllViews();
-                        showModal("Terhapus", "Barang telah berhasil dihapus.", true);
-                    }, 300);
+                async () => {
+                    try {
+                        // Hapus dari cloud
+                        await deleteDoc(doc(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory', currentDetailId));
+                        state.cart = state.cart.filter(c => c.id != currentDetailId);
+                        
+                        closeProductDetail();
+                        setTimeout(() => {
+                            showModal("Terhapus", "Barang telah berhasil dihapus.", true);
+                        }, 300);
+                    } catch(e) {
+                        showModal("Gagal", e.message, false);
+                    }
                 }
             );
         }
@@ -1371,41 +1514,44 @@
             }, 300);
         }
 
-        function simpanPembelianGlobal() {
+        async function simpanPembelianGlobal() {
             const id = document.getElementById('beli-global-id').value;
             const totalModalVal = parseInt(document.getElementById('beli-global-total-modal').value);
             const jual = parseInt(document.getElementById('beli-global-jual').value);
             const stokMasuk = parseInt(document.getElementById('beli-global-stok').value);
 
-            if(!id || isNaN(totalModalVal) || isNaN(jual) || isNaN(stokMasuk) || stokMasuk <= 0 || totalModalVal < 0) {
+            if(!id || isNaN(totalModalVal) || isNaN(jual) || isNaN(stokMasuk) || stokMasuk <= 0 || totalModalVal < 0 || !currentUserId) {
                 showModal("Gagal", "Mohon lengkapi semua form dengan benar.", false);
                 return;
             }
 
-            // Hitung harga modal per-satuan untuk disimpan di database barang
-            const unitCost = Math.floor(totalModalVal / stokMasuk);
+            try {
+                const unitCost = Math.floor(totalModalVal / stokMasuk);
+                const item = state.inventory.find(i => i.id == id);
+                
+                // Update detail ke cloud
+                const itemRef = doc(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory', id);
+                await updateDoc(itemRef, {
+                    cost: unitCost,
+                    price: jual,
+                    stock: item.stock + stokMasuk
+                });
 
-            const item = state.inventory.find(i => i.id == id);
-            if(item) {
-                // Harga beli terbaru (per-satuan) akan menimpa harga beli lama
-                item.cost = unitCost;
-                item.price = jual;
-                item.stock += stokMasuk;
-
-                state.history.unshift({
-                    id: generateId(),
+                // Tambahkan riwayat restok
+                await addDoc(collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'history'), {
                     date: new Date(),
                     type: 'RESTOCK',
                     items: [{id: item.id, name: item.name, qty: stokMasuk}],
-                    total: totalModalVal, // Yang dicatat ke riwayat uang keluar adalah Total Modal
+                    total: totalModalVal,
                     profit: 0
                 });
 
                 closeModalPembelianGlobal();
                 setTimeout(() => {
-                    updateAllViews();
                     showModal("Berhasil", "Pembelian stok berhasil dicatat ke sistem.", true);
                 }, 300);
+            } catch(e) {
+                showModal("Gagal", e.message, false);
             }
         }
 
@@ -1459,9 +1605,9 @@
             lucide.createIcons();
         }
 
-        function prosesStokOpname(id) {
+        async function prosesStokOpname(id) {
             const item = state.inventory.find(i => i.id == id);
-            if (!item) return;
+            if (!item || !currentUserId) return;
 
             const stokFisik = parseInt(document.getElementById(`opname-stok-${id}`).value);
             const alasan = document.getElementById(`opname-alasan-${id}`).value;
@@ -1478,23 +1624,26 @@
                 return;
             }
 
-            const stokLama = item.stock;
+            try {
+                const stokLama = item.stock;
+                const financialAdjustment = selisih * item.cost; 
 
-            // Perbarui Stok Sistem
-            item.stock = stokFisik;
+                // Perbarui ke Cloud
+                const itemRef = doc(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory', id);
+                await updateDoc(itemRef, { stock: stokFisik });
 
-            // Catat Riwayat Transaksi Penyesuaian
-            state.history.unshift({
-                id: generateId(),
-                date: new Date(),
-                type: 'ADJUSTMENT',
-                items: [{ id: item.id, name: item.name, qty: selisih, prevStock: stokLama, newStock: stokFisik, reason: alasan }],
-                total: 0,
-                profit: 0
-            });
+                await addDoc(collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'history'), {
+                    date: new Date(),
+                    type: 'ADJUSTMENT',
+                    items: [{ id: item.id, name: item.name, qty: selisih, prevStock: stokLama, newStock: stokFisik, reason: alasan }],
+                    total: Math.abs(financialAdjustment),
+                    profit: financialAdjustment
+                });
 
-            updateAllViews();
-            showModal("Penyesuaian Berhasil", `Stok "${item.name}" disesuaikan menjadi ${stokFisik} unit (Selisih: ${selisih > 0 ? '+' : ''}${selisih}).`, true);
+                showModal("Penyesuaian Berhasil", `Stok "${item.name}" disesuaikan menjadi ${stokFisik} unit (Selisih: ${selisih > 0 ? '+' : ''}${selisih}).`, true);
+            } catch(e) {
+                showModal("Gagal", e.message, false);
+            }
         }
 
         // --- Fitur Baru: Input Keuangan Manual (Pemasukan / Pengeluaran) ---
@@ -1540,30 +1689,33 @@
             }, 300);
         }
 
-        function simpanKeuangan() {
+        async function simpanKeuangan() {
             const nominal = parseInt(document.getElementById('keuangan-nominal').value);
             const catatan = document.getElementById('keuangan-catatan').value;
 
-            if(isNaN(nominal) || nominal <= 0 || !catatan) {
+            if(isNaN(nominal) || nominal <= 0 || !catatan || !currentUserId) {
                 showModal("Gagal", "Mohon isi nominal dan keterangan dengan benar.", false);
                 return;
             }
 
-            state.history.unshift({
-                id: generateId(),
-                date: new Date(),
-                type: tipeKeuanganAktif,
-                note: catatan,
-                total: nominal,
-                profit: tipeKeuanganAktif === 'INCOME' ? nominal : -nominal
-            });
+            try {
+                // Tambah keuangan ke cloud
+                await addDoc(collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'history'), {
+                    date: new Date(),
+                    type: tipeKeuanganAktif,
+                    note: catatan,
+                    total: nominal,
+                    profit: tipeKeuanganAktif === 'INCOME' ? nominal : -nominal
+                });
 
-            closeModalKeuangan();
-            setTimeout(() => {
-                updateAllViews();
-                const jenis = tipeKeuanganAktif === 'INCOME' ? 'Pemasukan' : 'Pengeluaran';
-                showModal("Berhasil", `Catatan ${jenis} berhasil ditambahkan.`, true);
-            }, 300);
+                closeModalKeuangan();
+                setTimeout(() => {
+                    const jenis = tipeKeuanganAktif === 'INCOME' ? 'Pemasukan' : 'Pengeluaran';
+                    showModal("Berhasil", `Catatan ${jenis} berhasil ditambahkan.`, true);
+                }, 300);
+            } catch(e) {
+                showModal("Gagal", e.message, false);
+            }
         }
 
         // --- Ekspor & Info ---
@@ -1585,6 +1737,89 @@
         function tentangApp() {
             showModal("Mikha Cell App v1.3", "Aplikasi Kasir, Logistik & Stok Opname Konter HP Modern. Dibangun dengan sistem PWA offline-first berkecepatan tinggi.", true);
         }
+
+        // --- Fitur Baru: Autentikasi Email/Password ---
+        let isLoginMode = true;
+
+        function switchAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('login-subtitle').textContent = isLoginMode ? 'Silakan login untuk melanjutkan' : 'Daftar akun baru Anda';
+            document.getElementById('btn-auth').textContent = isLoginMode ? 'Login' : 'Daftar Akun';
+            document.getElementById('auth-switch-text').textContent = isLoginMode ? 'Belum punya akun?' : 'Sudah punya akun?';
+            document.getElementById('btn-auth-switch').textContent = isLoginMode ? 'Daftar di sini' : 'Login di sini';
+            document.getElementById('auth-error-msg').classList.add('hidden');
+        }
+
+        async function prosesAuth() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const errEl = document.getElementById('auth-error-msg');
+            errEl.classList.add('hidden');
+
+            if (!email || !password) {
+                errEl.textContent = "Mohon isi Email dan Password!";
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const btn = document.getElementById('btn-auth');
+                const prevText = btn.textContent;
+                btn.textContent = 'Memproses...';
+                btn.disabled = true;
+
+                if (isLoginMode) {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                }
+                
+                btn.textContent = prevText;
+                btn.disabled = false;
+                
+                // Bersihkan form setelah berhasil
+                document.getElementById('auth-email').value = '';
+                document.getElementById('auth-password').value = '';
+                
+            } catch (error) {
+                const btn = document.getElementById('btn-auth');
+                btn.textContent = isLoginMode ? 'Login' : 'Daftar Akun';
+                btn.disabled = false;
+                
+                let errorMsg = error.message;
+                if (error.code === 'auth/invalid-email') errorMsg = "Format email salah.";
+                else if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') errorMsg = "Kredensial (Email/Password) salah.";
+                else if (error.code === 'auth/email-already-in-use') errorMsg = "Email sudah digunakan.";
+                else if (error.code === 'auth/weak-password') errorMsg = "Password minimal 6 karakter.";
+                
+                errEl.textContent = errorMsg;
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        async function prosesLogout() {
+            showConfirmModal("Keluar Aplikasi", "Apakah Anda yakin ingin keluar dari sesi ini?", async () => {
+                try {
+                    await signOut(auth);
+                } catch (error) {
+                    console.error("Logout gagal", error);
+                }
+            });
+        }
+
+        // --- Expose ke Global Window (Wajib agar tombol di HTML bisa memanggil fungsi di script Module) ---
+        Object.assign(window, {
+            switchView, toggleFormLogistik, simpanBarang, updateDateFilter,
+            updateCart, checkout, calculateChange, closeCheckoutPreview,
+            processCheckout, closeModal, closeConfirmModal, showProductDetail,
+            closeProductDetail, editProductFromDetail, closeEditModal,
+            simpanEditBarang, deleteProductFromDetail, calculateUnitCostGlobal,
+            bukaModalPembelianGlobal, autofillPembelianGlobal, closeModalPembelianGlobal,
+            simpanPembelianGlobal, renderStokOpname, prosesStokOpname,
+            bukaModalKeuangan, closeModalKeuangan, simpanKeuangan, eksporData, tentangApp,
+            renderKasir, renderLogistik,
+            switchAuthMode, prosesAuth, prosesLogout
+        });
 
     </script>
 </body>
