@@ -1,10 +1,10 @@
-const CACHE_NAME = 'mikha-cell-cache-v1';
+const CACHE_NAME = 'mikha-cell-cache-v2';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './manifest.json',
-    './icon-192px.png',
-    './icon-512px.png'
+    './icon-192px-v2.png',
+    './icon-512px-v2.png'
 ];
 
 // Install Event: Menyimpan aset penting ke dalam cache
