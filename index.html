@@ -83,14 +83,22 @@
     <!-- Wrapper Aplikasi Utama -->
     <div id="main-app" class="hidden">
 
-    <!-- Header -->
-    <header class="bg-dark-green text-white p-5 sticky top-0 z-40 rounded-b-2xl shadow-soft flex justify-between items-center">
+        <header class="bg-dark-green text-white p-4 sticky top-0 z-40 rounded-b-2xl shadow-soft flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-bold tracking-wide">Mikha Cell</h1>
-            <p class="text-xs text-green-200" id="header-date">Memuat tanggal...</p>
+            <div class="flex items-center gap-2 mb-1">
+                <h1 class="text-xl font-bold tracking-wide">Mikha Cell</h1>
+                <!-- Pilihan Cabang -->
+                <select id="global-branch" onchange="changeBranch()" class="bg-light-green text-white border-none text-xs rounded-lg px-2 py-1 outline-none font-bold cursor-pointer hover:bg-green-700 transition">
+                    <option value="all">Semua Cabang</option>
+                    <option value="cabang1">Cabang 1</option>
+                    <option value="cabang2">Cabang 2</option>
+                </select>
+                <span id="branch-label" class="bg-light-green text-white text-xs rounded-lg px-2 py-1 font-bold hidden">Cabang 1</span>
+            </div>
+            <p class="text-[10px] text-green-200" id="header-date">Memuat tanggal...</p>
         </div>
         <div class="bg-light-green p-2 rounded-xl">
-            <i data-lucide="smartphone" class="w-6 h-6 text-white"></i>
+            <i data-lucide="store" class="w-6 h-6 text-white"></i>
         </div>
     </header>
 
@@ -186,7 +194,7 @@
             <h2 class="text-lg font-bold text-dark-green mb-2">Kasir Penjualan</h2>
             
             <!-- Search & List Barang Kasir -->
-            <div class="relative mb-4">
+            <div class="relative mb-4" id="kasir-search-container">
                 <i data-lucide="search" class="absolute left-3 top-3 text-gray-400 w-5 h-5"></i>
                 <input type="text" id="search-kasir" placeholder="Cari barang..." class="w-full bg-white p-3 pl-10 rounded-2xl shadow-soft border-none focus:ring-2 focus:ring-dark-green outline-none">
             </div>
@@ -211,7 +219,7 @@
         <section id="view-logistik" class="hidden space-y-4">
             <div class="flex justify-between items-center mb-2">
                 <h2 class="text-lg font-bold text-dark-green">Data Logistik</h2>
-                <div class="flex gap-2">
+                <div class="flex gap-2" id="logistik-actions">
                     <button onclick="bukaModalPembelianGlobal()" class="bg-blue-600 text-white px-3 py-1.5 rounded-xl text-sm flex items-center gap-1 shadow-soft">
                         <i data-lucide="shopping-bag" class="w-4 h-4"></i> Restok
                     </button>
@@ -222,7 +230,7 @@
             </div>
 
             <!-- Search & Filter Barang Logistik -->
-            <div class="relative mb-2">
+            <div class="relative mb-2" id="logistik-search-container">
                 <i data-lucide="search" class="absolute left-3 top-3 text-gray-400 w-5 h-5"></i>
                 <input type="text" id="search-logistik" placeholder="Cari barang..." class="w-full bg-white p-3 pl-10 rounded-2xl shadow-soft border border-gray-100 focus:ring-2 focus:ring-dark-green outline-none">
             </div>
@@ -271,7 +279,7 @@
             <h2 class="text-lg font-bold text-dark-green mb-2">Setting & Stok Opname</h2>
             
             <!-- Alat Stok Opname -->
-            <div class="bg-white p-5 rounded-2xl shadow-soft border border-gray-100 space-y-4">
+            <div class="bg-white p-5 rounded-2xl shadow-soft border border-gray-100 space-y-4" id="opname-container-main">
                 <div class="flex items-center gap-2 border-b pb-2">
                     <i data-lucide="package-search" class="text-dark-green w-5 h-5"></i>
                     <h3 class="font-bold text-sm text-gray-800">Alat Penyesuaian Stok</h3>
@@ -290,6 +298,12 @@
                 <div id="opname-items-container" class="space-y-3 max-h-[48vh] overflow-y-auto pr-1">
                     <!-- Items Opname diisi oleh JS -->
                 </div>
+            </div>
+
+            <div id="opname-warning" class="hidden bg-orange-50 border border-orange-200 p-4 rounded-xl text-center">
+                <i data-lucide="store" class="w-8 h-8 text-orange-400 mx-auto mb-2"></i>
+                <p class="text-sm font-bold text-orange-600">Mode Semua Cabang Aktif</p>
+                <p class="text-xs text-orange-500 mt-1">Silakan pilih spesifik "Cabang 1" atau "Cabang 2" di header untuk melakukan stok opname.</p>
             </div>
 
             <!-- Opsi Tambahan -->
@@ -316,7 +330,7 @@
     <div id="modal-message" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden opacity-0 transition-opacity">
         <div class="bg-white p-6 rounded-2xl shadow-soft w-11/12 max-w-sm transform scale-95 transition-transform" id="modal-content">
             <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4" id="modal-icon-container">
                     <i data-lucide="check" class="h-6 w-6 text-green-600"></i>
                 </div>
                 <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Berhasil</h3>
@@ -570,13 +584,14 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appIdStr = "mikhacell"; // Standar nama path database
+        const appIdStr = "mikhacell"; 
         let currentUserId = null;
 
-        // --- In-Memory State (Berfungsi sebagai penampung lokal dari sinkronisasi Firebase) ---
+        // --- Multi-Branch State ---
+        let activeBranch = 'all'; // 'all', 'cabang1', 'cabang2'
         let state = {
-            inventory: [],
-            history: [],
+            cabang1: { inventory: [], history: [] },
+            cabang2: { inventory: [], history: [] },
             cart: []
         };
 
@@ -617,7 +632,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('header-date').textContent = "Menghubungkan ke Cloud...";
             
-            // Set input filter default ke hari ini (WITA)
             document.getElementById('dash-filter-start').value = filterStartDate;
             document.getElementById('dash-filter-end').value = filterEndDate;
             document.getElementById('riw-filter-start').value = filterStartDate;
@@ -625,7 +639,7 @@
 
             lucide.createIcons();
             
-            // Firebase Auth & Init
+            // Firebase Auth
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     currentUserId = user.uid;
@@ -638,60 +652,112 @@
                     document.getElementById('login-screen').classList.remove('hidden');
                     document.getElementById('main-app').classList.add('hidden');
                     
-                    if (unsubInventory) unsubInventory();
-                    if (unsubHistory) unsubHistory();
+                    unsubs.forEach(unsub => unsub());
+                    unsubs = [];
                     
-                    state.inventory = [];
-                    state.history = [];
+                    state.cabang1 = { inventory: [], history: [] };
+                    state.cabang2 = { inventory: [], history: [] };
                     state.cart = [];
                     updateAllViews();
                 }
             });
 
-            // PWA Service Worker Registration
+            // PWA
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('./sw.js').catch(err => {
-                        console.log('SW Registration failed (normal if files are not uploaded yet): ', err);
+                        console.log('SW Registration failed: ', err);
                     });
                 });
             }
-
-            // Initial render fallback
-            updateAllViews();
         });
 
-        let unsubInventory = null;
-        let unsubHistory = null;
+        let unsubs = [];
 
         function setupRealtimeListeners() {
             if(!currentUserId) return;
+            const userEmail = auth.currentUser.email;
 
-            // Listener Logistik
-            const inventoryRef = collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory');
-            unsubInventory = onSnapshot(inventoryRef, (snapshot) => {
-                state.inventory = [];
-                snapshot.forEach(doc => {
-                    state.inventory.push({ id: doc.id, ...doc.data() });
-                });
-                updateAllViews(); // Update UI otomatis saat data di cloud berubah
-            }, (error) => console.error("Error inventory:", error));
+            // Bersihkan listener lama
+            unsubs.forEach(unsub => unsub());
+            unsubs = [];
 
-            // Listener Riwayat Transaksi
-            const historyRef = collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'history');
-            unsubHistory = onSnapshot(historyRef, (snapshot) => {
-                state.history = [];
-                snapshot.forEach(doc => {
-                    let data = doc.data();
-                    // Convert format cloud timestamp ke Javascript Date standard
-                    data.date = data.date && data.date.toDate ? data.date.toDate() : new Date();
-                    state.history.push({ id: doc.id, ...data });
-                });
-                state.history.sort((a, b) => b.date - a.date); // Urutkan terbaru di atas
-                updateAllViews();
-            }, (error) => console.error("Error history:", error));
+            let branchesToListen = [];
+            
+            // Logika Pembatasan Hak Akses Email
+            if (userEmail === 'sophyansophan@gmail.com') {
+                branchesToListen = ['cabang1'];
+                activeBranch = 'cabang1';
+                document.getElementById('global-branch').style.display = 'none';
+                document.getElementById('branch-label').textContent = 'Cabang 1';
+                document.getElementById('branch-label').style.display = 'inline-block';
+            } else if (userEmail === 'admin@mikhacell.com') {
+                branchesToListen = ['cabang1', 'cabang2'];
+                document.getElementById('global-branch').style.display = 'inline-block';
+                document.getElementById('branch-label').style.display = 'none';
+            } else {
+                showModal("Akses Ditolak", "Email Anda tidak terdaftar untuk mengakses aplikasi ini.", false);
+                return;
+            }
 
-            document.getElementById('header-date').textContent = formatDate(new Date()) + " (Tersinkronisasi)";
+            // Listen ke cabang yang diizinkan (Menggunakan public data path agar bisa di-share antar akun)
+            branchesToListen.forEach(branch => {
+                const invRef = collection(db, 'artifacts', appIdStr, 'public', 'data', branch + '_inventory');
+                const unsubInv = onSnapshot(invRef, (snapshot) => {
+                    state[branch].inventory = [];
+                    snapshot.forEach(doc => {
+                        state[branch].inventory.push({ id: doc.id, ...doc.data() });
+                    });
+                    updateAllViews();
+                }, (error) => console.error(`Error inventory ${branch}:`, error));
+                unsubs.push(unsubInv);
+
+                const histRef = collection(db, 'artifacts', appIdStr, 'public', 'data', branch + '_history');
+                const unsubHist = onSnapshot(histRef, (snapshot) => {
+                    state[branch].history = [];
+                    snapshot.forEach(doc => {
+                        let data = doc.data();
+                        data.date = data.date && data.date.toDate ? data.date.toDate() : new Date();
+                        state[branch].history.push({ id: doc.id, ...data });
+                    });
+                    state[branch].history.sort((a, b) => b.date - a.date);
+                    updateAllViews();
+                }, (error) => console.error(`Error history ${branch}:`, error));
+                unsubs.push(unsubHist);
+            });
+
+            document.getElementById('header-date').textContent = formatDate(new Date()) + " (" + userEmail + ")";
+        }
+
+        // --- Branch Change Logic ---
+        function changeBranch() {
+            activeBranch = document.getElementById('global-branch').value;
+            state.cart = []; // Reset kasir
+            
+            // Reset input pencarian
+            if(document.getElementById('search-kasir')) document.getElementById('search-kasir').value = '';
+            if(document.getElementById('search-logistik')) document.getElementById('search-logistik').value = '';
+            if(document.getElementById('search-opname')) document.getElementById('search-opname').value = '';
+            
+            updateAllViews();
+        }
+
+        function getActiveInventory() {
+            if(activeBranch === 'all') {
+                // Untuk keperluan pencarian global di dashboard (jika ada) - kasir/logistik akan memblokir 'all'
+                return [...state.cabang1.inventory, ...state.cabang2.inventory];
+            }
+            return state[activeBranch].inventory;
+        }
+
+        function getActiveHistory() {
+            if(activeBranch === 'all') {
+                const h1 = state.cabang1.history.map(h => ({...h, branchName: 'Cabang 1'}));
+                const h2 = state.cabang2.history.map(h => ({...h, branchName: 'Cabang 2'}));
+                const combined = [...h1, ...h2];
+                return combined.sort((a, b) => b.date - a.date);
+            }
+            return state[activeBranch].history.map(h => ({...h, branchName: activeBranch === 'cabang1' ? 'Cabang 1' : 'Cabang 2'}));
         }
 
         // --- Navigation Logic ---
@@ -732,11 +798,13 @@
             let totalTerjual = 0;
             let nilaiAset = 0;
 
-            state.inventory.forEach(item => {
+            const currentInv = getActiveInventory();
+            currentInv.forEach(item => {
                 nilaiAset += (item.cost * item.stock);
             });
 
-            const filteredHistory = state.history.filter(trx => {
+            const currentHist = getActiveHistory();
+            const filteredHistory = currentHist.filter(trx => {
                 const trxDate = getWitaDateString(trx.date);
                 return trxDate >= filterStartDate && trxDate <= filterEndDate;
             });
@@ -758,7 +826,7 @@
                     if (trx.profit < 0) {
                         totalKerugianStok += Math.abs(trx.profit);
                     }
-                    totalLaba += trx.profit; // Akan otomatis mengurangi laba bersih jika minus
+                    totalLaba += trx.profit; 
                 }
             });
 
@@ -774,10 +842,29 @@
         function renderLogistik() {
             const container = document.getElementById('logistik-items-container');
             const searchInput = document.getElementById('search-logistik');
-            const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
+            const searchContainer = document.getElementById('logistik-search-container');
+            const actions = document.getElementById('logistik-actions');
+            
             container.innerHTML = '';
 
-            const filteredItems = state.inventory.filter(item => item.name.toLowerCase().includes(searchQuery));
+            if (activeBranch === 'all') {
+                searchContainer.classList.add('hidden');
+                actions.classList.add('hidden');
+                container.innerHTML = `
+                    <div class="bg-orange-50 border border-orange-200 p-4 rounded-xl text-center mt-5">
+                        <i data-lucide="store" class="w-8 h-8 text-orange-400 mx-auto mb-2"></i>
+                        <p class="text-sm font-bold text-orange-600">Mode Semua Cabang Aktif</p>
+                        <p class="text-xs text-orange-500 mt-1">Silakan pilih spesifik "Cabang 1" atau "Cabang 2" di header atas untuk mengelola data logistik.</p>
+                    </div>`;
+                return;
+            }
+
+            searchContainer.classList.remove('hidden');
+            actions.classList.remove('hidden');
+
+            const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
+            const currentInv = getActiveInventory();
+            const filteredItems = currentInv.filter(item => item.name.toLowerCase().includes(searchQuery));
 
             if(filteredItems.length === 0) {
                 container.innerHTML = `<p class="text-center text-sm text-gray-400 mt-5">Data barang tidak ditemukan.</p>`;
@@ -803,11 +890,16 @@
         }
 
         function toggleFormLogistik() {
+            if(activeBranch === 'all') {
+                showModal("Pilih Cabang", "Silakan pilih cabang spesifik untuk menambah barang.", false);
+                return;
+            }
             const form = document.getElementById('form-logistik');
             form.classList.toggle('hidden');
         }
 
         async function simpanBarang() {
+            if(activeBranch === 'all') return;
             const nama = document.getElementById('input-nama').value;
 
             if(!nama) {
@@ -818,8 +910,7 @@
             if(!currentUserId) return;
 
             try {
-                // Simpan barang ke cloud database
-                const docRef = doc(collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory'));
+                const docRef = doc(collection(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_inventory'));
                 await setDoc(docRef, {
                     name: nama,
                     cost: 0,
@@ -828,9 +919,8 @@
                 });
 
                 document.getElementById('input-nama').value = '';
-                
                 toggleFormLogistik();
-                showModal("Berhasil", "Data barang baru dibuat. Silakan buka detail barang tersebut untuk mencatat Pembelian Stok.", true);
+                showModal("Berhasil", "Data barang baru dibuat di " + (activeBranch === 'cabang1' ? 'Cabang 1' : 'Cabang 2') + ".", true);
             } catch(e) {
                 showModal("Gagal", e.message, false);
             }
@@ -839,10 +929,28 @@
         // --- Render Kasir ---
         function renderKasir() {
             const container = document.getElementById('kasir-items-container');
-            const searchQuery = document.getElementById('search-kasir').value.toLowerCase();
+            const searchContainer = document.getElementById('kasir-search-container');
+            const floatingCart = document.getElementById('floating-cart');
+            
             container.innerHTML = '';
 
-            const filteredItems = state.inventory.filter(item => item.name.toLowerCase().includes(searchQuery));
+            if (activeBranch === 'all') {
+                searchContainer.classList.add('hidden');
+                floatingCart.classList.add('hidden');
+                container.innerHTML = `
+                    <div class="bg-orange-50 border border-orange-200 p-4 rounded-xl text-center mt-5">
+                        <i data-lucide="store" class="w-8 h-8 text-orange-400 mx-auto mb-2"></i>
+                        <p class="text-sm font-bold text-orange-600">Mode Semua Cabang Aktif</p>
+                        <p class="text-xs text-orange-500 mt-1">Silakan pilih spesifik "Cabang 1" atau "Cabang 2" di header atas untuk melakukan transaksi penjualan.</p>
+                    </div>`;
+                return;
+            }
+
+            searchContainer.classList.remove('hidden');
+
+            const searchQuery = document.getElementById('search-kasir').value.toLowerCase();
+            const currentInv = getActiveInventory();
+            const filteredItems = currentInv.filter(item => item.name.toLowerCase().includes(searchQuery));
 
             if(filteredItems.length === 0) {
                 container.innerHTML = `<p class="text-center text-sm text-gray-400 mt-5">Barang tidak ditemukan.</p>`;
@@ -852,7 +960,6 @@
                 const cartItem = state.cart.find(c => c.id === item.id);
                 const cartQty = cartItem ? cartItem.qty : 0;
                 const availableStock = item.stock - cartQty;
-
                 const isOutOfStock = availableStock <= 0;
 
                 const html = `
@@ -888,9 +995,11 @@
         document.getElementById('search-logistik').addEventListener('input', renderLogistik);
 
         function updateCart(itemId, change) {
-            const itemIndex = state.inventory.findIndex(i => i.id == itemId);
+            if(activeBranch === 'all') return;
+            const currentInv = getActiveInventory();
+            const itemIndex = currentInv.findIndex(i => i.id == itemId);
             if(itemIndex === -1) return;
-            const item = state.inventory[itemIndex];
+            const item = currentInv[itemIndex];
 
             let cartItem = state.cart.find(c => c.id == itemId);
 
@@ -916,6 +1025,7 @@
         }
 
         function renderCartSummary() {
+            if(activeBranch === 'all') return;
             const floatingCart = document.getElementById('floating-cart');
             if(state.cart.length === 0) {
                 floatingCart.classList.add('hidden');
@@ -937,7 +1047,7 @@
         let currentCheckoutSubtotal = 0;
 
         function checkout() {
-            if(state.cart.length === 0) return;
+            if(state.cart.length === 0 || activeBranch === 'all') return;
 
             document.getElementById('checkout-customer').value = '';
             document.getElementById('checkout-discount').value = '';
@@ -1018,7 +1128,7 @@
         }
 
         async function processCheckout() {
-            if(state.cart.length === 0 || !currentUserId) return;
+            if(state.cart.length === 0 || !currentUserId || activeBranch === 'all') return;
 
             const customerName = document.getElementById('checkout-customer').value || 'Pelanggan Umum';
             const discount = parseInt(document.getElementById('checkout-discount').value) || 0;
@@ -1037,12 +1147,12 @@
             try {
                 let totalCost = 0;
                 let soldItems = [];
+                const currentInv = getActiveInventory();
 
-                // Proses update stok di Cloud (berurutan)
                 for (let cartItem of state.cart) {
-                    const invItem = state.inventory.find(i => i.id == cartItem.id);
+                    const invItem = currentInv.find(i => i.id == cartItem.id);
                     if(invItem) {
-                        const itemRef = doc(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory', cartItem.id);
+                        const itemRef = doc(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_inventory', cartItem.id);
                         await updateDoc(itemRef, { stock: invItem.stock - cartItem.qty });
 
                         totalCost += (cartItem.cost * cartItem.qty);
@@ -1057,8 +1167,7 @@
 
                 const totalProfit = finalTotal - totalCost;
 
-                // Tambahkan transaksi ke riwayat cloud
-                await addDoc(collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'history'), {
+                await addDoc(collection(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_history'), {
                     date: new Date(),
                     type: 'SALE',
                     customer: customerName,
@@ -1070,7 +1179,7 @@
                     change: cashGiven - finalTotal
                 });
 
-                state.cart = []; // Reset keranjang lokal
+                state.cart = []; 
                 currentCheckoutSubtotal = 0;
                 
                 setTimeout(() => {
@@ -1087,7 +1196,8 @@
             const container = document.getElementById('riwayat-container');
             container.innerHTML = '';
 
-            const filteredHistory = state.history.filter(trx => {
+            const currentHist = getActiveHistory();
+            const filteredHistory = currentHist.filter(trx => {
                 const trxDate = getWitaDateString(trx.date);
                 return trxDate >= filterStartDate && trxDate <= filterEndDate;
             });
@@ -1147,6 +1257,9 @@
                     amountColor = 'text-red-600';
                 }
 
+                // Tampilkan badge cabang jika sedang di mode Semua Cabang
+                const branchBadge = activeBranch === 'all' ? `<span class="bg-gray-200 text-gray-700 text-[9px] px-1.5 py-0.5 rounded font-bold ml-1 align-middle">${trx.branchName}</span>` : '';
+
                 const html = `
                     <div class="bg-white p-4 rounded-2xl shadow-soft border border-gray-100 relative overflow-hidden">
                         <div class="absolute top-0 left-0 w-1 h-full ${badgeColor}"></div>
@@ -1154,7 +1267,7 @@
                             <div>
                                 <span class="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-500 font-medium">${time} - ${dateStr}</span>
                                 <h3 class="font-bold text-sm mt-1 flex items-center gap-1">
-                                    <i data-lucide="${badgeIcon}" class="w-4 h-4 ${isSale ? 'text-dark-green' : (isAdjustment ? 'text-blue-500' : (isIncome ? 'text-green-500' : 'text-orange-500'))}"></i> ${badgeText}
+                                    <i data-lucide="${badgeIcon}" class="w-4 h-4 ${isSale ? 'text-dark-green' : (isAdjustment ? 'text-blue-500' : (isIncome ? 'text-green-500' : 'text-orange-500'))}"></i> ${badgeText} ${branchBadge}
                                 </h3>
                                 ${isSale && trx.customer ? `<p class="text-[10px] text-gray-500 mt-1"><i data-lucide="user" class="w-3 h-3 inline"></i> ${trx.customer}</p>` : ''}
                             </div>
@@ -1185,7 +1298,7 @@
             document.getElementById('modal-title').textContent = title;
             document.getElementById('modal-text').textContent = text;
             
-            const iconContainer = modalContent.querySelector('.rounded-full');
+            const iconContainer = document.getElementById('modal-icon-container');
             if(isSuccess) {
                 iconContainer.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4";
                 iconContainer.innerHTML = '<i data-lucide="check" class="h-6 w-6 text-green-600"></i>';
@@ -1217,7 +1330,6 @@
             }, 300);
         }
 
-        // --- Custom Confirmation Dialog ---
         function showConfirmModal(title, text, yesCallback) {
             document.getElementById('confirm-title').textContent = title;
             document.getElementById('confirm-text').textContent = text;
@@ -1256,7 +1368,9 @@
         let currentDetailId = null;
 
         function showProductDetail(id) {
-            const item = state.inventory.find(i => i.id == id);
+            if(activeBranch === 'all') return;
+            const currentInv = getActiveInventory();
+            const item = currentInv.find(i => i.id == id);
             if(!item) return;
 
             currentDetailId = id;
@@ -1282,7 +1396,8 @@
             const historyContainer = document.getElementById('detail-history');
             historyContainer.innerHTML = '';
             
-            const itemHistory = state.history.filter(trx => trx.items.some(i => i.id == id || i.name === item.name));
+            const currentHist = getActiveHistory();
+            const itemHistory = currentHist.filter(trx => trx.items && trx.items.some(i => i.id == id || i.name === item.name));
 
             if(itemHistory.length === 0) {
                 historyContainer.innerHTML = `<p class="text-xs text-gray-400 text-center py-4 bg-cream rounded-xl">Belum ada riwayat transaksi.</p>`;
@@ -1354,8 +1469,9 @@
         }
 
         function editProductFromDetail() {
-            if(!currentDetailId) return;
-            const item = state.inventory.find(i => i.id == currentDetailId);
+            if(!currentDetailId || activeBranch === 'all') return;
+            const currentInv = getActiveInventory();
+            const item = currentInv.find(i => i.id == currentDetailId);
             if(!item) return;
 
             document.getElementById('edit-id').value = item.id;
@@ -1394,6 +1510,7 @@
         }
 
         async function simpanEditBarang() {
+            if(activeBranch === 'all') return;
             const id = document.getElementById('edit-id').value;
             const nama = document.getElementById('edit-nama').value;
             const jual = parseInt(document.getElementById('edit-jual').value);
@@ -1404,8 +1521,7 @@
             }
 
             try {
-                // Perbarui ke cloud
-                const itemRef = doc(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory', id);
+                const itemRef = doc(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_inventory', id);
                 await updateDoc(itemRef, { name: nama, price: jual });
                 
                 const modal = document.getElementById('modal-product-edit');
@@ -1420,8 +1536,9 @@
         }
 
         function deleteProductFromDetail() {
-            if(!currentDetailId) return;
-            const item = state.inventory.find(i => i.id == currentDetailId);
+            if(!currentDetailId || activeBranch === 'all') return;
+            const currentInv = getActiveInventory();
+            const item = currentInv.find(i => i.id == currentDetailId);
             if(!item) return;
 
             showConfirmModal(
@@ -1429,8 +1546,7 @@
                 `Yakin ingin menghapus "${item.name}"? Barang akan dihapus dari Logistik, namun riwayat transaksi lama tetap dipertahankan.`, 
                 async () => {
                     try {
-                        // Hapus dari cloud
-                        await deleteDoc(doc(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory', currentDetailId));
+                        await deleteDoc(doc(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_inventory', currentDetailId));
                         state.cart = state.cart.filter(c => c.id != currentDetailId);
                         
                         closeProductDetail();
@@ -1459,9 +1575,15 @@
         }
 
         function bukaModalPembelianGlobal() {
+            if(activeBranch === 'all') {
+                showModal("Pilih Cabang", "Silakan pilih cabang spesifik di header untuk melakukan restok.", false);
+                return;
+            }
+
             const selectEl = document.getElementById('beli-global-id');
             selectEl.innerHTML = '<option value="">-- Pilih Barang --</option>';
-            state.inventory.forEach(item => {
+            const currentInv = getActiveInventory();
+            currentInv.forEach(item => {
                 selectEl.insertAdjacentHTML('beforeend', `<option value="${item.id}">${item.name}</option>`);
             });
 
@@ -1484,16 +1606,16 @@
 
         function autofillPembelianGlobal() {
             const id = document.getElementById('beli-global-id').value;
-            if(!id) {
+            if(!id || activeBranch === 'all') {
                 document.getElementById('beli-global-total-modal').value = '';
                 document.getElementById('beli-global-stok').value = '';
                 document.getElementById('beli-global-jual').value = '';
                 calculateUnitCostGlobal();
                 return;
             }
-            const item = state.inventory.find(i => i.id == id);
+            const currentInv = getActiveInventory();
+            const item = currentInv.find(i => i.id == id);
             if(item) {
-                // Tidak mengisi total modal karena jumlah dibeli (stok) belum diisi
                 document.getElementById('beli-global-total-modal').value = '';
                 document.getElementById('beli-global-stok').value = '';
                 document.getElementById('beli-global-jual').value = item.price > 0 ? item.price : '';
@@ -1515,6 +1637,7 @@
         }
 
         async function simpanPembelianGlobal() {
+            if(activeBranch === 'all') return;
             const id = document.getElementById('beli-global-id').value;
             const totalModalVal = parseInt(document.getElementById('beli-global-total-modal').value);
             const jual = parseInt(document.getElementById('beli-global-jual').value);
@@ -1527,18 +1650,17 @@
 
             try {
                 const unitCost = Math.floor(totalModalVal / stokMasuk);
-                const item = state.inventory.find(i => i.id == id);
+                const currentInv = getActiveInventory();
+                const item = currentInv.find(i => i.id == id);
                 
-                // Update detail ke cloud
-                const itemRef = doc(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory', id);
+                const itemRef = doc(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_inventory', id);
                 await updateDoc(itemRef, {
                     cost: unitCost,
                     price: jual,
                     stock: item.stock + stokMasuk
                 });
 
-                // Tambahkan riwayat restok
-                await addDoc(collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'history'), {
+                await addDoc(collection(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_history'), {
                     date: new Date(),
                     type: 'RESTOCK',
                     items: [{id: item.id, name: item.name, qty: stokMasuk}],
@@ -1555,8 +1677,20 @@
             }
         }
 
-        // --- Fitur Baru: Render Stok Opname ---
+        // --- Render Stok Opname ---
         function renderStokOpname() {
+            const containerMain = document.getElementById('opname-container-main');
+            const warningCard = document.getElementById('opname-warning');
+            
+            if(activeBranch === 'all') {
+                containerMain.classList.add('hidden');
+                warningCard.classList.remove('hidden');
+                return;
+            }
+            
+            containerMain.classList.remove('hidden');
+            warningCard.classList.add('hidden');
+
             const container = document.getElementById('opname-items-container');
             const searchInput = document.getElementById('search-opname');
             const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
@@ -1564,7 +1698,8 @@
             if(!container) return;
             container.innerHTML = '';
 
-            const filteredItems = state.inventory.filter(item => item.name.toLowerCase().includes(searchQuery));
+            const currentInv = getActiveInventory();
+            const filteredItems = currentInv.filter(item => item.name.toLowerCase().includes(searchQuery));
 
             if(filteredItems.length === 0) {
                 container.innerHTML = `<p class="text-center text-xs text-gray-400 py-6">Barang tidak ditemukan.</p>`;
@@ -1606,7 +1741,9 @@
         }
 
         async function prosesStokOpname(id) {
-            const item = state.inventory.find(i => i.id == id);
+            if(activeBranch === 'all') return;
+            const currentInv = getActiveInventory();
+            const item = currentInv.find(i => i.id == id);
             if (!item || !currentUserId) return;
 
             const stokFisik = parseInt(document.getElementById(`opname-stok-${id}`).value);
@@ -1620,7 +1757,7 @@
             const selisih = stokFisik - item.stock;
 
             if(selisih === 0) {
-                showModal("Tidak Ada Selisih", "Jumlah stok sistem dan fisik sudah sama. Tidak diperlukan penyesuaian.", true);
+                showModal("Tidak Ada Selisih", "Jumlah stok sistem dan fisik sudah sama.", true);
                 return;
             }
 
@@ -1628,11 +1765,10 @@
                 const stokLama = item.stock;
                 const financialAdjustment = selisih * item.cost; 
 
-                // Perbarui ke Cloud
-                const itemRef = doc(db, 'artifacts', appIdStr, 'users', currentUserId, 'inventory', id);
+                const itemRef = doc(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_inventory', id);
                 await updateDoc(itemRef, { stock: stokFisik });
 
-                await addDoc(collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'history'), {
+                await addDoc(collection(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_history'), {
                     date: new Date(),
                     type: 'ADJUSTMENT',
                     items: [{ id: item.id, name: item.name, qty: selisih, prevStock: stokLama, newStock: stokFisik, reason: alasan }],
@@ -1640,16 +1776,21 @@
                     profit: financialAdjustment
                 });
 
-                showModal("Penyesuaian Berhasil", `Stok "${item.name}" disesuaikan menjadi ${stokFisik} unit (Selisih: ${selisih > 0 ? '+' : ''}${selisih}).`, true);
+                showModal("Penyesuaian Berhasil", `Stok "${item.name}" disesuaikan menjadi ${stokFisik} unit.`, true);
             } catch(e) {
                 showModal("Gagal", e.message, false);
             }
         }
 
-        // --- Fitur Baru: Input Keuangan Manual (Pemasukan / Pengeluaran) ---
+        // --- Input Keuangan Manual ---
         let tipeKeuanganAktif = 'INCOME';
 
         function bukaModalKeuangan(tipe) {
+            if(activeBranch === 'all') {
+                showModal("Pilih Cabang", "Silakan pilih cabang spesifik di header atas untuk mencatat keuangan ini.", false);
+                return;
+            }
+
             tipeKeuanganAktif = tipe;
             const titleEl = document.getElementById('keuangan-title');
             
@@ -1690,6 +1831,7 @@
         }
 
         async function simpanKeuangan() {
+            if(activeBranch === 'all') return;
             const nominal = parseInt(document.getElementById('keuangan-nominal').value);
             const catatan = document.getElementById('keuangan-catatan').value;
 
@@ -1699,8 +1841,7 @@
             }
 
             try {
-                // Tambah keuangan ke cloud
-                await addDoc(collection(db, 'artifacts', appIdStr, 'users', currentUserId, 'history'), {
+                await addDoc(collection(db, 'artifacts', appIdStr, 'public', 'data', activeBranch + '_history'), {
                     date: new Date(),
                     type: tipeKeuanganAktif,
                     note: catatan,
@@ -1728,17 +1869,17 @@
                 document.body.appendChild(downloadAnchor);
                 downloadAnchor.click();
                 downloadAnchor.remove();
-                showModal("Ekspor Berhasil", "Seluruh data persediaan dan riwayat toko Anda berhasil diunduh sebagai file JSON backup.", true);
+                showModal("Ekspor Berhasil", "Data berhasil diunduh.", true);
             } catch(e) {
-                showModal("Gagal Ekspor", "Terjadi kesalahan saat mengekspor data backup.", false);
+                showModal("Gagal Ekspor", "Terjadi kesalahan.", false);
             }
         }
 
         function tentangApp() {
-            showModal("Mikha Cell App v1.3", "Aplikasi Kasir, Logistik & Stok Opname Konter HP Modern. Dibangun dengan sistem PWA offline-first berkecepatan tinggi.", true);
+            showModal("Mikha Cell Multi-Cabang v2.0", "Sistem Kasir Cloud dengan sinkronisasi Multi-Cabang real-time.", true);
         }
 
-        // --- Fitur Baru: Autentikasi Email/Password ---
+        // --- Autentikasi Email/Password ---
         let isLoginMode = true;
 
         function switchAuthMode() {
@@ -1777,7 +1918,6 @@
                 btn.textContent = prevText;
                 btn.disabled = false;
                 
-                // Bersihkan form setelah berhasil
                 document.getElementById('auth-email').value = '';
                 document.getElementById('auth-password').value = '';
                 
@@ -1807,9 +1947,9 @@
             });
         }
 
-        // --- Expose ke Global Window (Wajib agar tombol di HTML bisa memanggil fungsi di script Module) ---
+        // --- Expose ke Global Window ---
         Object.assign(window, {
-            switchView, toggleFormLogistik, simpanBarang, updateDateFilter,
+            switchView, toggleFormLogistik, simpanBarang, updateDateFilter, changeBranch,
             updateCart, checkout, calculateChange, closeCheckoutPreview,
             processCheckout, closeModal, closeConfirmModal, showProductDetail,
             closeProductDetail, editProductFromDetail, closeEditModal,
