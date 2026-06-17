@@ -546,7 +546,12 @@
             <div id="history-detail-body" class="space-y-3 mb-6 text-sm">
             </div>
 
-            <div class="mt-4 flex gap-3">
+            <!-- Tombol Void Khusus Penjualan -->
+            <button id="btn-void-history" onclick="voidHistoryItem()" class="w-full inline-flex justify-center items-center rounded-xl border border-red-600 shadow-sm px-4 py-3 bg-red-600 text-base font-bold text-white hover:bg-red-700 sm:text-sm transition mb-3 hidden">
+                <i data-lucide="rotate-ccw" class="w-5 h-5 mr-2"></i> Void (Batalkan Transaksi)
+            </button>
+
+            <div class="flex gap-3">
                 <button onclick="deleteHistoryItem()" class="w-1/3 inline-flex justify-center rounded-xl border border-red-200 shadow-sm px-4 py-2 bg-red-50 text-base font-medium text-red-600 hover:bg-red-100 sm:text-sm transition">
                     <i data-lucide="trash-2" class="w-4 h-4 mr-1 mt-0.5"></i> Hapus
                 </button>
@@ -850,6 +855,8 @@
             });
 
             filteredHistory.forEach(trx => {
+                if (trx.isVoided) return; // Mengabaikan transaksi yang di-void
+
                 if(trx.type === 'SALE') {
                     totalOmset += trx.total;
                     trx.items.forEach(i => totalTerjual += i.qty);
@@ -1271,6 +1278,7 @@
                 const isAdjustment = trx.type === 'ADJUSTMENT';
                 const isIncome = trx.type === 'INCOME';
                 const isExpense = trx.type === 'EXPENSE';
+                const isVoided = trx.isVoided;
                 const time = trx.date.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Makassar'});
                 const dateStr = trx.date.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric', timeZone: 'Asia/Makassar'});
                 
@@ -1289,7 +1297,12 @@
                 let amountText = `-${formatRupiah(trx.total)}`;
                 let amountColor = 'text-gray-800';
 
-                if (isSale) {
+                if (isVoided) {
+                    badgeColor = 'bg-gray-500';
+                    badgeIcon = 'ban';
+                    badgeText = 'Batal (VOID)';
+                    amountColor = 'text-gray-400 line-through'; // Dicoret karena batal
+                } else if (isSale) {
                     badgeColor = 'bg-dark-green';
                     badgeIcon = 'arrow-up-right';
                     badgeText = 'Penjualan';
@@ -1321,13 +1334,13 @@
 
                 // Membuka pop up detail saat kartu di klik
                 const html = `
-                    <div onclick="showHistoryDetail('${trx.id}', '${trx.branchId}')" class="bg-white p-4 rounded-2xl shadow-soft border border-gray-100 relative overflow-hidden cursor-pointer hover:bg-gray-50 transition">
+                    <div onclick="showHistoryDetail('${trx.id}', '${trx.branchId}')" class="bg-white p-4 rounded-2xl shadow-soft border border-gray-100 relative overflow-hidden cursor-pointer hover:bg-gray-50 transition ${isVoided ? 'opacity-70' : ''}">
                         <div class="absolute top-0 left-0 w-1 h-full ${badgeColor}"></div>
                         <div class="flex justify-between items-start mb-2">
                             <div>
                                 <span class="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-500 font-medium">${time} - ${dateStr}</span>
                                 <h3 class="font-bold text-sm mt-1 flex items-center gap-1">
-                                    <i data-lucide="${badgeIcon}" class="w-4 h-4 ${isSale ? 'text-dark-green' : (isAdjustment ? 'text-blue-500' : (isIncome ? 'text-green-500' : 'text-orange-500'))}"></i> ${badgeText} ${branchBadge} ${editedBadge}
+                                    <i data-lucide="${badgeIcon}" class="w-4 h-4 ${isVoided ? 'text-gray-500' : (isSale ? 'text-dark-green' : (isAdjustment ? 'text-blue-500' : (isIncome ? 'text-green-500' : 'text-orange-500')))}"></i> <span class="${isVoided ? 'text-gray-500 line-through' : ''}">${badgeText}</span> ${branchBadge} ${editedBadge}
                                 </h3>
                                 <p class="text-[10px] text-gray-500 mt-1 flex items-center gap-1">
                                     <i data-lucide="user" class="w-3 h-3"></i> Opr: ${trx.userEmail || 'Tidak diketahui'}
@@ -1336,7 +1349,7 @@
                             </div>
                             <div class="text-right">
                                 <p class="font-bold ${amountColor} text-sm">${amountText}</p>
-                                ${isSale ? `<p class="text-[10px] text-blue-500 font-medium">Laba: ${formatRupiah(trx.profit)}</p>` : ''}
+                                ${isSale && !isVoided ? `<p class="text-[10px] text-blue-500 font-medium">Laba: ${formatRupiah(trx.profit)}</p>` : ''}
                                 ${isAdjustment && trx.profit !== 0 ? `<p class="text-[10px] ${trx.profit < 0 ? 'text-red-500' : 'text-blue-500'} font-medium">${trx.profit < 0 ? 'Rugi:' : 'Untung:'} ${formatRupiah(Math.abs(trx.profit))}</p>` : ''}
                             </div>
                         </div>
@@ -1441,13 +1454,14 @@
             const dateStr = trx.date.toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year:'numeric', timeZone: 'Asia/Makassar'});
             const body = document.getElementById('history-detail-body');
             const btnEdit = document.getElementById('btn-edit-history');
+            const btnVoid = document.getElementById('btn-void-history');
 
             let typeText = '';
             let editable = false;
             
             if(trx.type === 'SALE') {
                 typeText = 'Penjualan Kasir';
-                editable = true;
+                editable = !trx.isVoided;
             } else if (trx.type === 'INCOME') {
                 typeText = 'Pemasukan Kas';
                 editable = true;
@@ -1463,6 +1477,7 @@
             }
 
             btnEdit.style.display = editable ? 'inline-flex' : 'none';
+            btnVoid.style.display = (trx.type === 'SALE' && !trx.isVoided) ? 'inline-flex' : 'none';
 
             let itemsHtml = '';
             if(trx.type === 'ADJUSTMENT') {
@@ -1474,13 +1489,15 @@
             }
 
             const editBadge = trx.isEdited ? `<span class="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-0.5 rounded font-bold ml-2">Telah Diedit</span>` : '';
+            const voidBadge = trx.isVoided ? `<span class="bg-red-100 text-red-700 text-[10px] px-2 py-0.5 rounded font-bold ml-2">VOID / BATAL</span>` : '';
 
             body.innerHTML = `
                 <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 mb-3">
                     <p class="text-xs text-gray-500 mb-1">Waktu: <strong class="text-gray-800">${dateStr} - ${time}</strong></p>
-                    <p class="text-xs text-gray-500 mb-1">Tipe: <strong class="text-gray-800">${typeText}</strong> ${editBadge}</p>
+                    <p class="text-xs text-gray-500 mb-1">Tipe: <strong class="text-gray-800">${typeText}</strong> ${editBadge} ${voidBadge}</p>
                     <p class="text-xs text-gray-500 mb-1">Operator Awal: <strong class="text-gray-800">${trx.userEmail || '-'}</strong></p>
                     ${trx.isEdited && trx.editedBy ? `<p class="text-xs text-gray-500 mb-1">Diedit Oleh: <strong class="text-orange-600">${trx.editedBy}</strong></p>` : ''}
+                    ${trx.isVoided && trx.voidedBy ? `<p class="text-xs text-gray-500 mb-1">Di-void Oleh: <strong class="text-red-600">${trx.voidedBy}</strong></p>` : ''}
                     ${trx.customer ? `<p class="text-xs text-gray-500">Pelanggan: <strong class="text-gray-800">${trx.customer}</strong></p>` : ''}
                 </div>
                 <div class="bg-cream p-3 rounded-xl border border-gray-100 mb-3">
@@ -1492,12 +1509,12 @@
                 <div class="bg-green-50 p-3 rounded-xl border border-green-100">
                     <div class="flex justify-between items-center mb-1 text-xs text-gray-600">
                         <span>Total Nilai:</span>
-                        <strong class="text-lg text-dark-green">${formatRupiah(trx.total)}</strong>
+                        <strong class="text-lg text-dark-green ${trx.isVoided ? 'line-through text-gray-500' : ''}">${formatRupiah(trx.total)}</strong>
                     </div>
                     ${trx.type === 'SALE' ? `
-                        <div class="flex justify-between items-center text-xs text-gray-500"><span>Diskon:</span><span>${formatRupiah(trx.discount)}</span></div>
-                        <div class="flex justify-between items-center text-xs text-gray-500"><span>Tunai:</span><span>${formatRupiah(trx.cash)}</span></div>
-                        <div class="flex justify-between items-center text-xs text-gray-500"><span>Kembalian:</span><span>${formatRupiah(trx.change)}</span></div>
+                        <div class="flex justify-between items-center text-xs text-gray-500"><span>Diskon:</span><span class="${trx.isVoided ? 'line-through text-gray-400' : ''}">${formatRupiah(trx.discount)}</span></div>
+                        <div class="flex justify-between items-center text-xs text-gray-500"><span>Tunai:</span><span class="${trx.isVoided ? 'line-through text-gray-400' : ''}">${formatRupiah(trx.cash)}</span></div>
+                        <div class="flex justify-between items-center text-xs text-gray-500"><span>Kembalian:</span><span class="${trx.isVoided ? 'line-through text-gray-400' : ''}">${formatRupiah(trx.change)}</span></div>
                     ` : ''}
                 </div>
             `;
@@ -1657,6 +1674,55 @@
                 btn.disabled = false;
                 btn.classList.remove('opacity-70', 'cursor-not-allowed');
             }
+        }
+
+        function voidHistoryItem() {
+            if(!currentHistoryId || !currentHistoryBranchId) return;
+            const trx = state[currentHistoryBranchId].history.find(h => h.id === currentHistoryId);
+            if (!trx || trx.type !== 'SALE' || trx.isVoided) return;
+
+            showConfirmModal(
+                "Void Transaksi", 
+                "Apakah Anda yakin ingin MEMBATALKAN penjualan ini? Stok barang akan otomatis dikembalikan ke Logistik dan nilai Uang Kas akan disesuaikan.", 
+                async () => {
+                    const btn = document.getElementById('btn-confirm-yes');
+                    const originalHtml = btn.innerHTML;
+                    btn.innerHTML = 'Memproses...';
+                    btn.disabled = true;
+                    btn.classList.add('opacity-70', 'cursor-not-allowed');
+
+                    try {
+                        const currentInv = getActiveInventory();
+                        
+                        // 1. Mengembalikan stok barang
+                        for (let soldItem of trx.items) {
+                            const invItem = currentInv.find(i => i.id == soldItem.id);
+                            if(invItem) {
+                                const itemRef = doc(db, 'artifacts', appIdStr, 'public', 'data', currentHistoryBranchId + '_inventory', soldItem.id);
+                                await updateDoc(itemRef, { stock: invItem.stock + soldItem.qty });
+                            }
+                        }
+
+                        // 2. Memberi tanda bahwa history ini telah di-void
+                        const histRef = doc(db, 'artifacts', appIdStr, 'public', 'data', currentHistoryBranchId + '_history', currentHistoryId);
+                        await updateDoc(histRef, { 
+                            isVoided: true,
+                            voidedBy: currentUserEmail
+                        });
+                        
+                        closeHistoryDetail();
+                        setTimeout(() => {
+                            showModal("Berhasil", "Transaksi berhasil dibatalkan (VOID). Stok barang telah dikembalikan.", true);
+                        }, 300);
+                    } catch(e) {
+                        showModal("Gagal", e.message, false);
+                    } finally {
+                        btn.innerHTML = originalHtml;
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    }
+                }
+            );
         }
 
         // --- Fitur Detail, Edit & Hapus Produk (Logistik) ---
@@ -2311,7 +2377,7 @@
             renderKasir, renderLogistik,
             switchAuthMode, prosesAuth, prosesLogout,
             showHistoryDetail, closeHistoryDetail, deleteHistoryItem,
-            editHistoryItem, closeHistoryEdit, saveHistoryEdit
+            editHistoryItem, closeHistoryEdit, saveHistoryEdit, voidHistoryItem
         });
 
     </script>
